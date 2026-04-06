@@ -41,13 +41,13 @@ GROUP_COLORS = {"Q/K\n(routing)": "#4575b4", "V/O\n(output)": "#d73027", "MLP": 
 
 
 def load_attribution(model_key):
-    path = RESULTS / f"step1_attribution_expanded_{model_key}.json"
+    path = RESULTS / f"attribution_{model_key}.json"
     with open(path) as f:
         return json.load(f)
 
 
 def load_gradient(model_key):
-    path = RESULTS / f"step3_gradient_analysis_{model_key}.json"
+    path = RESULTS / f"gradient_analysis_{model_key}.json"
     with open(path) as f:
         return json.load(f)
 

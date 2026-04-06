@@ -9,10 +9,10 @@ Key questions:
   2. Does OC-DPO still reduce alignment tax at 14B?
 
 Usage:
-  python step12_scaling_14b.py                    # fp16 on 2+ GPUs (device_map=auto)
-  python step12_scaling_14b.py --device cuda:3    # 4-bit on single GPU
-  python step12_scaling_14b.py --num-examples 209 # use all examples (default: 209)
-  python step12_scaling_14b.py --attribution-only # skip OC-DPO, just run attribution
+  python 06_scaling_14b.py                    # fp16 on 2+ GPUs (device_map=auto)
+  python 06_scaling_14b.py --device cuda:3    # 4-bit on single GPU
+  python 06_scaling_14b.py --num-examples 209 # use all examples (default: 209)
+  python 06_scaling_14b.py --attribution-only # skip OC-DPO, just run attribution
 
 Requirements:
   - fp16 mode: ~2x 24GB GPUs (14B fp16 ~28GB, uses device_map="auto")
@@ -31,7 +31,7 @@ from scipy import stats
 
 sys.path.insert(0, "./experiments")
 from agent_examples_200 import AGENT_EXAMPLES_200 as ALL_EXAMPLES  # 209 examples
-from step6_ocdpo import TRAIN_DATA, EVAL_EXAMPLES, ALL_TARGETS
+from 05_ocdpo import TRAIN_DATA, EVAL_EXAMPLES, ALL_TARGETS
 
 RESULTS_DIR = Path("./results")
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -594,7 +594,7 @@ def main():
         wandb.login()  # uses WANDB_API_KEY env var
         run = wandb.init(
             project="anonymous-submission",
-            name="step12-scaling-14b-v2-fixed",
+            name="scaling-14b",
             config={
                 "base_model": BASE_MODEL,
                 "it_model": IT_MODEL,
@@ -608,7 +608,7 @@ def main():
         )
 
     all_results = {
-        "experiment": "step12_scaling_14b_v2",
+        "experiment": "06_scaling_14b_v2",
         "base_model": BASE_MODEL,
         "it_model": IT_MODEL,
         "fix_note": "v2: corrected harm score sign (bl - patched_loss)",
@@ -659,7 +659,7 @@ def main():
         })
 
     # Save results (v2 filename to not overwrite original)
-    out_path = RESULTS_DIR / "step12_scaling_14b_v2.json"
+    out_path = RESULTS_DIR / "06_scaling_14b_v2.json"
     with open(out_path, "w") as f:
         json.dump(all_results, f, indent=2, default=str)
     print(f"\nResults saved to {out_path}")

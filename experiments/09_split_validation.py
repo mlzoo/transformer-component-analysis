@@ -5,9 +5,9 @@ Addresses reviewer concern that SAR may overfit to the same examples used for at
 If SAR still recovers alignment tax on held-out examples, overfitting is ruled out.
 
 Runs one model per GPU. Usage:
-    python step28_split_validation.py qwen2.5-7b cuda:0
-    python step28_split_validation.py llama-3.1-8b cuda:1
-    python step28_split_validation.py mistral-7b cuda:2
+    python 09_split_validation.py qwen2.5-7b cuda:0
+    python 09_split_validation.py llama-3.1-8b cuda:1
+    python 09_split_validation.py mistral-7b cuda:2
 """
 
 import sys
@@ -318,7 +318,7 @@ def run_split_validation(model_name, device):
         ],
     }
 
-    out_path = RESULTS_DIR / f"step28_split_validation_{model_name}.json"
+    out_path = RESULTS_DIR / f"split_validation_{model_name}.json"
     with open(out_path, "w") as f:
         json.dump(results, f, indent=2)
     print(f"\nSaved: {out_path}")

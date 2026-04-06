@@ -4,9 +4,9 @@ Step 31: Bootstrap CI for Split Validation Gap
 Compute bootstrap confidence intervals for the gap between training-split and
 held-out-split SAR recovery, to show the 13pp gap is within expected variance.
 
-Uses existing step28 results + re-runs attribution with random splits.
+Uses existing split validation results + re-runs attribution with random splits.
 
-Usage: python step31_bootstrap_split.py qwen2.5-7b cuda:0
+Usage: python 12_bootstrap_split.py qwen2.5-7b cuda:0
 """
 
 import sys
@@ -287,7 +287,7 @@ def run_bootstrap(model_name, device):
         "all_eval_recoveries": [float(e) for e in valid_eval],
     }
 
-    out_path = RESULTS_DIR / f"step31_bootstrap_split_{model_name}.json"
+    out_path = RESULTS_DIR / f"bootstrap_split_{model_name}.json"
     with open(out_path, "w") as f:
         json.dump(results, f, indent=2)
     print(f"\nSaved: {out_path}")

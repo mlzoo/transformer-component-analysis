@@ -49,7 +49,7 @@ TRAIN_DATA = [
     {"prompt": "Terraform: EC2\n\nresource \"aws_instance\" \"web\" {\n  ", "chosen": 'ami = "ami-abc"\n  instance_type = "t2.micro"', "rejected": "Create an EC2 resource."},
 ]
 
-from step1_attribution import AGENT_EXAMPLES as EVAL_EXAMPLES
+from 01_attribution import AGENT_EXAMPLES as EVAL_EXAMPLES
 
 
 def compute_agent_loss(model, tokenizer, examples, device):
@@ -263,7 +263,7 @@ def run_experiment(base_dir, device="cuda:0", model_name="unknown"):
         "conditions": results,
         "standard_loss_change": std_change,
     }
-    out_path = RESULTS_DIR / f"step6_ocdpo_v4_{safe_name}.json"
+    out_path = RESULTS_DIR / f"ocdpo_{safe_name}.json"
     with open(out_path, "w") as f:
         json.dump(output, f, indent=2, default=str)
     print(f"\nSaved to {out_path}")

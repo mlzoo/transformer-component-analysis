@@ -12,7 +12,7 @@ TIES-Merging (Yadav et al. 2023):
 Both operate on alignment deltas (delta = w_it - w_base) and produce a merged model.
 We compare these against SAR's attribution-guided component selection.
 
-Usage: python step41_dare_ties_comparison.py <model_key> <cuda_device>
+Usage: python 18_dare_ties_comparison.py <model_key> <cuda_device>
 """
 
 import sys
@@ -30,17 +30,17 @@ MODEL_CONFIGS = {
     "qwen2.5-7b": {
         "base": "./models/Qwen2.5-7B",
         "it": "Qwen/Qwen2.5-7B-Instruct",
-        "attribution": "step1_attribution_expanded_qwen2.5-7b.json",
+        "attribution": "attribution_qwen2.5-7b.json",
     },
     "llama-3.1-8b": {
         "base": "./models/Llama-3.1-8B",
         "it": "./models/Llama-3.1-8B-Instruct",
-        "attribution": "step1_attribution_expanded_llama-3.1-8b.json",
+        "attribution": "attribution_llama-3.1-8b.json",
     },
     "mistral-7b": {
         "base": "./models/Mistral-7B-v0.3",
         "it": "./models/Mistral-7B-Instruct-v0.3",
-        "attribution": "step1_attribution_expanded_mistral-7b.json",
+        "attribution": "attribution_mistral-7b.json",
     },
 }
 
@@ -349,7 +349,7 @@ def run_comparison(model_key, device="cuda:0"):
         "model": model_key,
         "results": results,
     }
-    out_path = RESULTS_DIR / f"step41_dare_ties_{model_key}.json"
+    out_path = RESULTS_DIR / f"dare_ties_{model_key}.json"
     with open(out_path, "w") as f:
         json.dump(output, f, indent=2, default=str)
     print(f"\nSaved to {out_path}")

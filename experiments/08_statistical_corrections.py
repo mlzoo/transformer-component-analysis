@@ -40,10 +40,10 @@ def load_vo_qk_scores(filepath):
 
 def main():
     files = {
-        "Qwen2.5-7B": RESULTS_DIR / "step8_attribution_200_qwen2.5-7b.json",
-        "Llama-3.1-8B": RESULTS_DIR / "step8_attribution_200_llama-3.1-8b.json",
-        "Mistral-7B": RESULTS_DIR / "step8_attribution_200_mistral-7b.json",
-        "Qwen2.5-14B": RESULTS_DIR / "step12_scaling_14b_v2.json",
+        "Qwen2.5-7B": RESULTS_DIR / "attribution_qwen2.5-7b.json",
+        "Llama-3.1-8B": RESULTS_DIR / "attribution_llama-3.1-8b.json",
+        "Mistral-7B": RESULTS_DIR / "attribution_mistral-7b.json",
+        "Qwen2.5-14B": RESULTS_DIR / "06_scaling_14b_v2.json",
     }
 
     n_comparisons = len(files)  # 4
@@ -100,7 +100,7 @@ def main():
             "qk_mean": float(qk.mean()),
         }
 
-    out = RESULTS_DIR / "step26_bonferroni.json"
+    out = RESULTS_DIR / "statistical_corrections.json"
     with open(out, "w") as f:
         json.dump(results, f, indent=2)
     print(f"Saved: {out}")

@@ -1,13 +1,13 @@
 """
 Step 44: OC-DPO Safety Evaluation with LLM Judge (Claude Opus 4.6 via Bedrock).
 
-Re-runs step20 OC-DPO safety evaluation but:
+Re-runs OC-DPO safety evaluation but:
   1. Saves all raw responses
   2. Judges each response with Claude Opus 4.6
 
 Usage:
-  python step44_ocdpo_safety_judge.py <model_key> <cuda_device>
-  python step44_ocdpo_safety_judge.py judge   # Judge-only (if responses saved)
+  python 12_ocdpo_safety_judge.py <model_key> <cuda_device>
+  python 12_ocdpo_safety_judge.py judge   # Judge-only (if responses saved)
 """
 
 import sys
@@ -22,11 +22,11 @@ RESULTS_DIR = Path("./results")
 RESPONSES_DIR = RESULTS_DIR / "ocdpo_safety_responses"
 
 sys.path.insert(0, str(Path(__file__).parent))
-from step14_safety_large import (
+from 04_safety import (
     ALL_HARMFUL_CATEGORIES, BORDERLINE, BENIGN,
     detect_refusal, generate_response,
 )
-from step20_ocdpo_safety import (
+from 08_ocdpo_safety import (
     MODEL_CONFIGS, TRAIN_DATA, ALL_TARGETS,
     get_mid_layer_targets, train_dpo,
 )
@@ -276,7 +276,7 @@ def analyze(model_key, judge_results):
         analysis["delta_it_ocdpo_judge"] = round(oc_j - it_j, 4)
         print(f"  Δ(IT→OC-DPO) judge: {oc_j - it_j:+.1%}")
 
-    out_path = RESULTS_DIR / f"step44_ocdpo_safety_judge_{model_key}.json"
+    out_path = RESULTS_DIR / f"ocdpo_safety_judge_{model_key}.json"
     with open(out_path, "w") as f:
         json.dump(analysis, f, indent=2)
     print(f"Saved to {out_path}")
@@ -286,8 +286,8 @@ def analyze(model_key, judge_results):
 def main():
     if len(sys.argv) < 2:
         print("Usage:")
-        print("  python step44_ocdpo_safety_judge.py <model_key> <cuda_device>")
-        print("  python step44_ocdpo_safety_judge.py judge")
+        print("  python 12_ocdpo_safety_judge.py <model_key> <cuda_device>")
+        print("  python 12_ocdpo_safety_judge.py judge")
         sys.exit(1)
 
     if sys.argv[1] == "judge":

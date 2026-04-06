@@ -6,7 +6,7 @@ For each component (t, l), computes:
 
 Uses layer-by-layer gradient computation to fit in GPU memory.
 
-Usage: python step36_gradient_dot_delta.py <model_name> <device>
+Usage: python gradient_dot_delta.py <model_name> <device>
 """
 
 import sys, json, torch
@@ -37,7 +37,7 @@ MODEL_PAIRS = {
 }
 
 sys.path.insert(0, "./experiments")
-from step1_attribution import AGENT_EXAMPLES
+from 01_attribution import AGENT_EXAMPLES
 
 
 def classify_component(name):
@@ -260,7 +260,7 @@ def run_analysis(model_name, device):
         "components": components,
     }
 
-    out_path = RESULTS_DIR / f"step36_gradient_dot_delta_{model_name}.json"
+    out_path = RESULTS_DIR / f"gradient_dot_delta_{model_name}.json"
     with open(out_path, "w") as f:
         json.dump(results, f, indent=2)
     print(f"\nSaved to {out_path}")

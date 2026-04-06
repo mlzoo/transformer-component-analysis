@@ -7,8 +7,8 @@ Two phases:
   Phase 2: Judge each response with Claude Opus 4.6 via Bedrock
 
 Usage:
-  python step43_safety_llm_judge.py <model_key> <cuda_device>
-  python step43_safety_llm_judge.py judge   # Phase 2 only (if responses already saved)
+  python 11_safety_llm_judge.py <model_key> <cuda_device>
+  python 11_safety_llm_judge.py judge   # Phase 2 only (if responses already saved)
 """
 
 import sys
@@ -23,9 +23,9 @@ from collections import defaultdict
 RESULTS_DIR = Path("./results")
 RESPONSES_DIR = RESULTS_DIR / "safety_responses"
 
-# Import prompts and utilities from step14
+# Import prompts and utilities from 04_safety
 sys.path.insert(0, str(Path(__file__).parent))
-from step14_safety_large import (
+from 04_safety import (
     ALL_HARMFUL_CATEGORIES, BORDERLINE, BENIGN,
     MODEL_CONFIGS, detect_refusal, generate_response,
     load_attribution_scores, apply_sar,
@@ -329,7 +329,7 @@ def analyze_judge_results(model_key, judge_results):
         print(f"    Keyword: {delta_keyword:+.1%}")
 
     # Save
-    out_path = RESULTS_DIR / f"step43_safety_judge_{model_key}.json"
+    out_path = RESULTS_DIR / f"safety_judge_{model_key}.json"
     with open(out_path, "w") as f:
         json.dump(analysis, f, indent=2)
     print(f"\nSaved to {out_path}")
@@ -343,8 +343,8 @@ def analyze_judge_results(model_key, judge_results):
 def main():
     if len(sys.argv) < 2:
         print("Usage:")
-        print("  python step43_safety_llm_judge.py <model_key> <cuda_device>")
-        print("  python step43_safety_llm_judge.py judge  # Judge all saved responses")
+        print("  python 11_safety_llm_judge.py <model_key> <cuda_device>")
+        print("  python 11_safety_llm_judge.py judge  # Judge all saved responses")
         sys.exit(1)
 
     if sys.argv[1] == "judge":

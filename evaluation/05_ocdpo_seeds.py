@@ -6,7 +6,7 @@ Runs the 2 key conditions (standard DPO vs OC-DPO exclude-output) across
 tax reduction, suitable for NeurIPS confidence intervals.
 
 Usage:
-    python step16_ocdpo_seeds.py cuda:3
+    python ocdpo_seeds.py cuda:3
 """
 
 import sys
@@ -17,7 +17,7 @@ import numpy as np
 from pathlib import Path
 
 sys.path.insert(0, "./experiments")
-from step6_ocdpo import (
+from 05_ocdpo import (
     TRAIN_DATA,
     EVAL_EXAMPLES,
     compute_agent_loss,
@@ -291,7 +291,7 @@ def run_model_seeds(model_name, base_dir, device, wandb_run=None):
 
     # Save
     safe_name = model_name.replace("/", "_").replace(" ", "_").lower()
-    out_path = RESULTS_DIR / f"step16_ocdpo_seeds_{safe_name}.json"
+    out_path = RESULTS_DIR / f"ocdpo_seeds_{safe_name}.json"
     with open(out_path, "w") as f:
         json.dump(output, f, indent=2, default=str)
     print(f"\nSaved to {out_path}")
@@ -319,7 +319,7 @@ def main():
 
         run = wandb.init(
             project="anonymous-submission",
-            name=f"step16-ocdpo-seeds-{model_name}",
+            name=f"ocdpo-seeds-{model_name}",
             config={
                 "step": 16,
                 "experiment": "ocdpo_seeds",
@@ -365,7 +365,7 @@ def main():
           f"(3 models x {len(SEEDS)} seeds)")
 
     # Save combined results
-    combined_path = RESULTS_DIR / "step16_ocdpo_seeds_combined.json"
+    combined_path = RESULTS_DIR / "ocdpo_seeds_combined.json"
     combined = {
         "models": list(all_model_results.keys()),
         "seeds": SEEDS,

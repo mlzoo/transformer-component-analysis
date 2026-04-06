@@ -6,10 +6,10 @@ Computes bootstrap CIs for:
   2. SAR top-k% component selection stability (how often each component appears)
   3. Output-pathway share of total alignment change
 
-Uses pre-computed attribution data from step1_attribution_expanded.
+Uses pre-computed attribution data from attribution.
 CPU-only computation.
 
-Usage: python step35_sar_bootstrap_ci.py [model_name]
+Usage: python sar_bootstrap_ci.py [model_name]
 """
 
 import sys, json
@@ -25,12 +25,12 @@ MODELS = ["qwen2.5-7b", "llama-3.1-8b", "mistral-7b", "yi-1.5-9b"]
 
 
 def load_attribution(model_name):
-    path = RESULTS_DIR / f"step1_attribution_expanded_{model_name}.json"
+    path = RESULTS_DIR / f"attribution_{model_name}.json"
     if not path.exists():
         # Fallback for Yi and other models with different file patterns
-        path = RESULTS_DIR / f"step37_{model_name.replace('-', '_').replace('.', '_')}_full_pipeline.json"
+        path = RESULTS_DIR / f"pipeline_{model_name.replace('-', '_').replace('.', '_')}_full_pipeline.json"
     if not path.exists():
-        path = RESULTS_DIR / f"step37_yi_full_pipeline.json"  # Yi specific
+        path = RESULTS_DIR / f"attribution_yi.json"  # Yi specific
     with open(path) as f:
         data = json.load(f)
     return data
@@ -228,7 +228,7 @@ def run_model(model_name):
         "per_type_ci": type_cis,
     }
 
-    out_path = RESULTS_DIR / f"step35_sar_bootstrap_ci_{model_name}.json"
+    out_path = RESULTS_DIR / f"sar_bootstrap_ci_{model_name}.json"
     with open(out_path, "w") as f:
         json.dump(results, f, indent=2)
     print(f"\nSaved to {out_path}")

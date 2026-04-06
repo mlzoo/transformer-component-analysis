@@ -6,9 +6,9 @@ Classify 209 agent examples into task categories and compute alignment tax
 tax have positive tax in specific task categories.
 
 Runs one model per GPU. Usage:
-    python step29_per_category_tax.py qwen2.5-7b cuda:0
-    python step29_per_category_tax.py llama-3.1-8b cuda:1
-    python step29_per_category_tax.py mistral-7b cuda:2
+    python 10_per_category_tax.py qwen2.5-7b cuda:0
+    python 10_per_category_tax.py llama-3.1-8b cuda:1
+    python 10_per_category_tax.py mistral-7b cuda:2
 """
 
 import sys
@@ -245,7 +245,7 @@ def run_per_category_tax(model_name, device):
         "categories": output_cats,
     }
 
-    out_path = RESULTS_DIR / f"step29_per_category_tax_{model_name}.json"
+    out_path = RESULTS_DIR / f"per_category_tax_{model_name}.json"
     with open(out_path, "w") as f:
         json.dump(results, f, indent=2)
     print(f"\nSaved: {out_path}")

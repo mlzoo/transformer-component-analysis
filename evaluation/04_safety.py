@@ -3,11 +3,11 @@ Step 14: Large-Scale Safety Evaluation
 
 Comprehensive safety evaluation using 500+ harmful prompts from multiple sources:
   - 200 AdvBench-style harmful behaviors (curated, 5 categories x 40)
-  - 50 from step10 (existing custom prompts)
+  - 50 from custom set (existing custom prompts)
   - 10 borderline prompts (legitimate but sensitive)
   - 10 benign controls (should NOT be refused)
 
-Total harmful: 250  (200 AdvBench-style + 50 step10)
+Total harmful: 250  (200 AdvBench-style + 50 custom)
 Total evaluated: 270
 
 Evaluates: Base, IT, SAR-5% for Qwen, Llama, Mistral
@@ -31,22 +31,22 @@ MODEL_CONFIGS = {
     "qwen2.5-7b": {
         "base": "./models/Qwen2.5-7B",
         "it": "Qwen/Qwen2.5-7B-Instruct",
-        "attribution": "step8_attribution_200_qwen2.5-7b.json",
+        "attribution": "attribution_qwen2.5-7b.json",
     },
     "llama-3.1-8b": {
         "base": "./models/Llama-3.1-8B",
         "it": "./models/Llama-3.1-8B-Instruct",
-        "attribution": "step8_attribution_200_llama-3.1-8b.json",
+        "attribution": "attribution_llama-3.1-8b.json",
     },
     "mistral-7b": {
         "base": "./models/Mistral-7B-v0.3",
         "it": "./models/Mistral-7B-Instruct-v0.3",
-        "attribution": "step8_attribution_200_mistral-7b.json",
+        "attribution": "attribution_mistral-7b.json",
     },
     "yi-1.5-9b": {
         "base": "./models/Yi-1.5-9B",
         "it": "./models/Yi-1.5-9B-Chat",
-        "attribution": "step37_yi_full_pipeline.json",
+        "attribution": "attribution_yi.json",
     },
 }
 
@@ -462,7 +462,7 @@ def generate_response(model, tokenizer, prompt, device, max_new_tokens=200):
 # Attribution loading and SAR rollback
 # ============================================================
 def load_attribution_scores(model_key):
-    """Load attribution scores from step8 results."""
+    """Load attribution scores from attribution results."""
     attr_file = MODEL_CONFIGS[model_key]["attribution"]
     path = RESULTS_DIR / attr_file
     if not path.exists():
@@ -718,7 +718,7 @@ def save_results(model_key, results):
         "model": model_key,
         "n_harmful": TOTAL_HARMFUL,
         "n_harmful_advbench": 200,
-        "n_harmful_step10": 50,
+        "n_harmful_custom": 50,
         "n_borderline": len(BORDERLINE),
         "n_benign": len(BENIGN),
         "categories": list(ALL_HARMFUL_CATEGORIES.keys()),
@@ -739,7 +739,7 @@ def save_results(model_key, results):
             sar_cat = results["sar_5pct"]["categories"][cat]["refusal_rate"]
             output["delta_per_category"][cat] = round(sar_cat - it_cat, 4)
 
-    out_path = RESULTS_DIR / f"step14_safety_large_v2_{model_key}.json"
+    out_path = RESULTS_DIR / f"safety_v2_{model_key}.json"
     with open(out_path, "w") as f:
         json.dump(output, f, indent=2, default=str)
     print(f"\nSaved to {out_path}")
@@ -750,7 +750,7 @@ def log_to_wandb(all_model_results):
     """Log all results to Weights & Biases."""
     import wandb
     wandb.login()  # uses WANDB_API_KEY env var
-    wandb.init(project="anonymous-submission", name="step14-safety-large")
+    wandb.init(project="anonymous-submission", name="safety-evaluation")
 
     cats = ["violence", "illegal", "fraud", "privacy", "harmful_content"]
 
@@ -809,7 +809,7 @@ def log_to_wandb(all_model_results):
 # Main
 # ============================================================
 if __name__ == "__main__":
-    # Support single-model mode: python step14_safety_large.py <model_key> <device>
+    # Support single-model mode: python safety.py <model_key> <device>
     if len(sys.argv) >= 3 and sys.argv[1] in MODEL_CONFIGS:
         single_model = sys.argv[1]
         device = sys.argv[2]
@@ -821,7 +821,7 @@ if __name__ == "__main__":
     print(f"Step 14: Large-Scale Safety Evaluation (deterministic, greedy decoding)")
     print(f"Device: {device}")
     print(f"Models: {models_to_run}")
-    print(f"Total harmful prompts: {TOTAL_HARMFUL} (200 AdvBench-style + 50 step10)")
+    print(f"Total harmful prompts: {TOTAL_HARMFUL} (200 AdvBench-style + 50 custom)")
     print(f"Controls: {len(BORDERLINE)} borderline + {len(BENIGN)} benign")
     print(f"Variants: Base, IT, SAR-5%")
 
@@ -855,4 +855,4 @@ if __name__ == "__main__":
         print(f"{model_key:<16} {base_r:>7.1%} {it_r:>7.1%} {sar_r:>7.1%} "
               f"{delta:>+7.2%} {fp_it:>7.1%} {fp_sar:>7.1%}")
 
-    print(f"\nDone. Results saved to {RESULTS_DIR}/step14_safety_large_*.json")
+    print(f"\nDone. Results saved to {RESULTS_DIR}/safety_*.json")

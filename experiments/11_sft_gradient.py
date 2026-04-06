@@ -4,7 +4,7 @@ Step 30: SFT Gradient Verification
 Verify that V/O vs Q/K gradient asymmetry holds under SFT (cross-entropy) loss,
 not just DPO. This confirms the softmax Jacobian attenuation is loss-independent.
 
-Usage: python step30_sft_gradient.py <model_dir> <device> <model_name>
+Usage: python 11_sft_gradient.py <model_dir> <device> <model_name>
 """
 
 import sys
@@ -210,7 +210,7 @@ def run_sft_gradient_analysis(model_dir, device="cuda:0", model_name="unknown", 
     }
 
     safe_name = model_name.replace("/", "_").replace(" ", "_").lower()
-    out_path = RESULTS_DIR / f"step30_sft_gradient_{safe_name}.json"
+    out_path = RESULTS_DIR / f"sft_gradient_{safe_name}.json"
     with open(out_path, "w") as f:
         json.dump(output, f, indent=2, default=str)
     print(f"\nSaved to {out_path}")

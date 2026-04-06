@@ -8,7 +8,7 @@ interactions between components. For top-K harmful components, computes:
 If interactions are small relative to marginal effects, the one-at-a-time
 attribution is a good approximation.
 
-Usage: python step34_pairwise_interaction.py <model_name> <device>
+Usage: python 14_pairwise_interaction.py <model_name> <device>
 """
 
 import sys, json, torch
@@ -37,12 +37,12 @@ MODEL_PAIRS = {
 TOP_K = 10  # Analyze top 10 harmful components
 
 sys.path.insert(0, "./experiments")
-from step1_attribution import AGENT_EXAMPLES, compute_loss
+from 01_attribution import AGENT_EXAMPLES, compute_loss
 
 
 def load_attribution(model_name):
     """Load pre-computed attribution results."""
-    path = RESULTS_DIR / f"step1_attribution_expanded_{model_name}.json"
+    path = RESULTS_DIR / f"attribution_{model_name}.json"
     with open(path) as f:
         data = json.load(f)
     return data["components"]
@@ -251,7 +251,7 @@ def run_analysis(model_name, device):
         "interactions": interactions,
     }
 
-    out_path = RESULTS_DIR / f"step34_pairwise_interaction_{model_name}.json"
+    out_path = RESULTS_DIR / f"pairwise_interaction_{model_name}.json"
     with open(out_path, "w") as f:
         json.dump(results, f, indent=2)
     print(f"\nSaved to {out_path}")

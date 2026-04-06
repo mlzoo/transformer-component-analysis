@@ -74,7 +74,7 @@ def panel_a(ax):
 
 def panel_b(ax):
     """SAR: attribution-guided vs random (Qwen)."""
-    sar_data = load_json(RESULTS / "step4_sar_eval_qwen2.5-7b.json")
+    sar_data = load_json(RESULTS / "sar_eval_qwen2.5-7b.json")
     results = sar_data["results"]
 
     budgets = [3, 5, 8, 10]

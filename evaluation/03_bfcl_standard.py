@@ -13,7 +13,7 @@ Categories evaluated:
 Metric: AST accuracy (correct function name AND correct arguments).
 
 Usage:
-    python step13_bfcl_standard.py cuda:2
+    python bfcl_standard.py cuda:2
 """
 
 import sys
@@ -36,17 +36,17 @@ MODEL_CONFIGS = {
     "qwen2.5-7b": {
         "base": "./models/Qwen2.5-7B",
         "it": "Qwen/Qwen2.5-7B-Instruct",
-        "attr": "step8_attribution_200_qwen2.5-7b.json",
+        "attr": "attribution_qwen2.5-7b.json",
     },
     "llama-3.1-8b": {
         "base": "./models/Llama-3.1-8B",
         "it": "./models/Llama-3.1-8B-Instruct",
-        "attr": "step8_attribution_200_llama-3.1-8b.json",
+        "attr": "attribution_llama-3.1-8b.json",
     },
     "mistral-7b": {
         "base": "./models/Mistral-7B-v0.3",
         "it": "./models/Mistral-7B-Instruct-v0.3",
-        "attr": "step8_attribution_200_mistral-7b.json",
+        "attr": "attribution_mistral-7b.json",
     },
 }
 
@@ -718,7 +718,7 @@ def main():
     # W&B setup
     import wandb
     wandb.login()  # uses WANDB_API_KEY env var
-    run = wandb.init(project="anonymous-submission", name="step13-bfcl-standard")
+    run = wandb.init(project="anonymous-submission", name="bfcl-standard")
 
     # Load BFCL data
     print("\nLoading BFCL dataset...")
@@ -915,7 +915,7 @@ def main():
 
     # Save results
     output = {
-        "analysis": "step13_bfcl_standard",
+        "analysis": "bfcl_standard",
         "dataset": "synthetic_bfcl_style" if is_synthetic else "gorilla-llm/Berkeley-Function-Calling-Leaderboard",
         "categories": {cat: len(exs) for cat, exs in bfcl_data.items()},
         "total_examples": total_examples,
@@ -923,7 +923,7 @@ def main():
         "alignment_tax": tax_summary,
     }
 
-    out_path = RESULTS_DIR / "step13_bfcl_standard.json"
+    out_path = RESULTS_DIR / "bfcl_standard.json"
     with open(out_path, "w") as f:
         json.dump(output, f, indent=2, default=str)
     print(f"\nResults saved to {out_path}")

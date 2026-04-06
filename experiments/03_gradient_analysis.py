@@ -221,7 +221,7 @@ def run_gradient_analysis(model_dir, device="cuda:0", model_name="unknown", num_
     }
 
     safe_name = model_name.replace("/", "_").replace(" ", "_").lower()
-    out_path = RESULTS_DIR / f"step3_gradient_analysis_{safe_name}.json"
+    out_path = RESULTS_DIR / f"gradient_analysis_{safe_name}.json"
     with open(out_path, "w") as f:
         json.dump(output, f, indent=2, default=str)
     print(f"\nSaved to {out_path}")

@@ -6,7 +6,7 @@ Measures pass@1 for Base, IT, and SAR-5% variants across 3 model families to qua
 the alignment tax on code generation.
 
 Usage:
-    python3 step18_humaneval.py cuda:0
+    python3 humaneval.py cuda:0
 """
 
 import sys
@@ -37,25 +37,25 @@ MODEL_CONFIGS = [
         "name": "qwen2.5-7b",
         "base_dir": "./models/Qwen2.5-7B",
         "it_dir": "./models/Qwen2.5-7B-Instruct",
-        "attribution_file": "./results/step8_attribution_200_qwen2.5-7b.json",
+        "attribution_file": "./results/attribution_qwen2.5-7b.json",
     },
     {
         "name": "llama-3.1-8b",
         "base_dir": "./models/Llama-3.1-8B",
         "it_dir": "./models/Llama-3.1-8B-Instruct",
-        "attribution_file": "./results/step8_attribution_200_llama-3.1-8b.json",
+        "attribution_file": "./results/attribution_llama-3.1-8b.json",
     },
     {
         "name": "mistral-7b",
         "base_dir": "./models/Mistral-7B-v0.3",
         "it_dir": "./models/Mistral-7B-Instruct-v0.3",
-        "attribution_file": "./results/step8_attribution_200_mistral-7b.json",
+        "attribution_file": "./results/attribution_mistral-7b.json",
     },
     {
         "name": "yi-1.5-9b",
         "base_dir": "./models/Yi-1.5-9B",
         "it_dir": "./models/Yi-1.5-9B-Chat",
-        "attribution_file": "./results/step37_yi_full_pipeline.json",
+        "attribution_file": "./results/attribution_yi.json",
     },
 ]
 
@@ -384,7 +384,7 @@ def run_model_family(config, device, problems):
         "results": {k: {kk: vv for kk, vv in v.items() if kk != "details"} for k, v in all_results.items()},
         "details": {k: v["details"] for k, v in all_results.items()},
     }
-    out_path = RESULTS_DIR / f"step18_humaneval_{model_name}.json"
+    out_path = RESULTS_DIR / f"humaneval_{model_name}.json"
     with open(out_path, "w") as f:
         json.dump(output, f, indent=2, default=str)
     print(f"  Saved to {out_path}")
@@ -402,7 +402,7 @@ def main():
     configs_to_run = [c for c in MODEL_CONFIGS if model_filter is None or c["name"] == model_filter]
     wandb.init(
         project="anonymous-submission",
-        name=f"step18-humaneval{'-' + model_filter if model_filter else ''}",
+        name=f"humaneval{'-' + model_filter if model_filter else ''}",
         config={
             "benchmark": "HumanEval",
             "n_problems": 164,
@@ -467,7 +467,7 @@ def main():
         "models": [c["name"] for c in MODEL_CONFIGS],
         "results": combined_results,
     }
-    combined_path = RESULTS_DIR / "step18_humaneval_combined.json"
+    combined_path = RESULTS_DIR / "humaneval_combined.json"
     with open(combined_path, "w") as f:
         json.dump(combined_output, f, indent=2, default=str)
     print(f"\nSaved combined results to {combined_path}")

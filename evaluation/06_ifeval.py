@@ -12,7 +12,7 @@ Metrics:
   - Instruction-level accuracy: % of individual constraints that pass
 
 Usage:
-    python step17_ifeval.py cuda:0
+    python 06_ifeval.py cuda:0
 """
 
 import sys
@@ -40,22 +40,22 @@ MODEL_CONFIGS = {
     "qwen2.5-7b": {
         "base": "./models/Qwen2.5-7B",
         "it": "./models/Qwen2.5-7B-Instruct",
-        "attr": "step8_attribution_200_qwen2.5-7b.json",
+        "attr": "attribution_qwen2.5-7b.json",
     },
     "llama-3.1-8b": {
         "base": "./models/Llama-3.1-8B",
         "it": "./models/Llama-3.1-8B-Instruct",
-        "attr": "step8_attribution_200_llama-3.1-8b.json",
+        "attr": "attribution_llama-3.1-8b.json",
     },
     "mistral-7b": {
         "base": "./models/Mistral-7B-v0.3",
         "it": "./models/Mistral-7B-Instruct-v0.3",
-        "attr": "step8_attribution_200_mistral-7b.json",
+        "attr": "attribution_mistral-7b.json",
     },
     "yi-1.5-9b": {
         "base": "./models/Yi-1.5-9B",
         "it": "./models/Yi-1.5-9B-Chat",
-        "attr": "step37_yi_full_pipeline.json",
+        "attr": "attribution_yi.json",
     },
 }
 
@@ -639,7 +639,7 @@ def main():
     # W&B init
     run = wandb.init(
         project="anonymous-submission",
-        name=f"step17-ifeval{'-' + model_filter if model_filter else ''}",
+        name=f"ifeval{'-' + model_filter if model_filter else ''}",
         config={
             "benchmark": "IFEval",
             "dataset": "google/IFEval",
@@ -805,7 +805,7 @@ def main():
         all_results[family_name] = family_results
 
         # Save per-model results
-        out_path = RESULTS_DIR / f"step17_ifeval_{family_name}.json"
+        out_path = RESULTS_DIR / f"ifeval_{family_name}.json"
         with open(out_path, "w") as f:
             json.dump({
                 "model": family_name,
@@ -878,7 +878,7 @@ def main():
         wandb.log(wandb_summary)
 
     # Save combined results
-    combined_path = RESULTS_DIR / "step17_ifeval_combined.json"
+    combined_path = RESULTS_DIR / "ifeval_combined.json"
     with open(combined_path, "w") as f:
         json.dump({
             "benchmark": "IFEval",

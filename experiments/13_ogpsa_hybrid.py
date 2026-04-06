@@ -8,11 +8,11 @@ This tests whether combining mechanistic insight (which components matter) with
 OGPSA's soft constraint (gradient projection) outperforms standard OGPSA.
 
 Conditions:
-  1. ogpsa_standard: OGPSA on all 7 projections (baseline, same as step19)
+  1. ogpsa_standard: OGPSA on all 7 projections (baseline, same as 07_ogpsa_comparison)
   2. ogpsa_hybrid: OGPSA projection on V/O/W_down only, standard LoRA on Q/K/gate/up
-  3. ocdpo: Hard exclusion of V/O/W_down (from step15/19, for reference)
+  3. ocdpo: Hard exclusion of V/O/W_down (from previous OC-DPO experiment/19, for reference)
 
-Usage: python step32_ogpsa_hybrid.py cuda:0
+Usage: python 13_ogpsa_hybrid.py cuda:0
 """
 
 import sys
@@ -26,7 +26,7 @@ from safetensors import safe_open
 RESULTS_DIR = Path("./results")
 
 sys.path.insert(0, "./experiments")
-from step6_ocdpo import EVAL_EXAMPLES, compute_agent_loss, ALL_TARGETS, get_mid_layer_targets
+from 05_ocdpo import EVAL_EXAMPLES, compute_agent_loss, ALL_TARGETS, get_mid_layer_targets
 
 MODEL_CONFIGS = {
     "qwen2.5-7b": {
@@ -436,8 +436,8 @@ def run_model(model_name, config, device, train_data):
     gc.collect()
 
     # ========== Load reference results ==========
-    # Pull standard DPO and OC-DPO from step15/19
-    for step_file in [f"step15_ocdpo_large_{model_name}.json", f"step19_ogpsa_large_{model_name}.json"]:
+    # Pull standard DPO and OC-DPO from previous OC-DPO experiment/19
+    for step_file in [f"ocdpo_large_{model_name}.json", f"ogpsa_comparison_{model_name}.json"]:
         path = RESULTS_DIR / step_file
         if path.exists():
             with open(path) as f:
@@ -478,7 +478,7 @@ def run_model(model_name, config, device, train_data):
         "subspace_rank": SUBSPACE_RANK,
         "conditions": results,
     }
-    out_path = RESULTS_DIR / f"step32_ogpsa_hybrid_{model_name}.json"
+    out_path = RESULTS_DIR / f"ogpsa_hybrid_{model_name}.json"
     with open(out_path, "w") as f:
         json.dump(output, f, indent=2, default=str)
     print(f"\nSaved: {out_path}")
@@ -518,7 +518,7 @@ def main():
                     else:
                         print(f"  {cond}: {change:+.4f}")
 
-    combined_path = RESULTS_DIR / "step32_ogpsa_hybrid_combined.json"
+    combined_path = RESULTS_DIR / "ogpsa_hybrid_combined.json"
     combined = {"analysis": "OGPSA hybrid cross-model", "models": {}}
     for model_name, results in all_results.items():
         combined["models"][model_name] = {

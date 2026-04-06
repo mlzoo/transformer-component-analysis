@@ -17,7 +17,7 @@ from pathlib import Path
 
 RESULTS_DIR = Path("./results")
 
-from step1_attribution import AGENT_EXAMPLES
+from 01_attribution import AGENT_EXAMPLES
 
 # Simple MMLU examples (5-shot format, multiple choice)
 MMLU_EXAMPLES = [
@@ -113,7 +113,7 @@ def compute_perplexity(model, tokenizer, device, max_tokens=4096):
 
 def load_attribution_scores(model_name):
     safe_name = model_name.replace("/", "_").replace(" ", "_").lower()
-    path = RESULTS_DIR / f"step1_attribution_expanded_{safe_name}.json"
+    path = RESULTS_DIR / f"attribution_{safe_name}.json"
     if not path.exists():
         return {}
     with open(path) as f:
@@ -242,7 +242,7 @@ def run_evaluation(base_dir, it_dir, device="cuda:0", model_name="unknown"):
         "model": model_name,
         "results": all_results,
     }
-    out_path = RESULTS_DIR / f"step7_eval_{safe_name}.json"
+    out_path = RESULTS_DIR / f"eval_{safe_name}.json"
     with open(out_path, "w") as f:
         json.dump(output, f, indent=2, default=str)
     print(f"\nSaved to {out_path}")

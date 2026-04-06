@@ -258,7 +258,7 @@ def run_attribution(base_dir, it_dir, device="cuda:0", model_name="unknown"):
         "type_statistics": type_stats, "components": results,
     }
     safe_name = model_name.replace("/", "_").replace(" ", "_").lower()
-    out_path = RESULTS_DIR / f"step1_attribution_expanded_{safe_name}.json"
+    out_path = RESULTS_DIR / f"attribution_{safe_name}.json"
     with open(out_path, "w") as f:
         json.dump(output, f, indent=2, default=str)
     print(f"\nSaved to {out_path}")

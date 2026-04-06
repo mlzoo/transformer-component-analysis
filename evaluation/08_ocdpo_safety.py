@@ -5,8 +5,8 @@ Train OC-DPO models (exclude V/O/down) then evaluate safety on 250 harmful promp
 Also runs standard DPO for comparison. This addresses reviewer concern W4:
 "OC-DPO's alignment quality is not verified."
 
-Reuses: safety prompts and refusal detection from step14_safety_large.py
-        DPO training from step6_ocdpo_v4.py
+Reuses: safety prompts and refusal detection from safety.py
+        DPO training from ocdpo.py
 """
 
 import sys
@@ -38,7 +38,7 @@ MODEL_CONFIGS = {
 }
 
 # ============================================================
-# DPO training data (same as step6)
+# DPO training data (same as 05_ocdpo)
 # ============================================================
 TRAIN_DATA = [
     {"prompt": "Tools: search(q)\nUser: Capital of France?\nThought: Search.\nAction: ", "chosen": 'search(q="capital of France")', "rejected": "The capital of France is Paris."},
@@ -64,9 +64,9 @@ TRAIN_DATA = [
 ]
 
 # ============================================================
-# Safety prompts (subset from step14 — 250 harmful)
+# Safety prompts (subset from 04_safety — 250 harmful)
 # ============================================================
-from step14_safety_large import (
+from 04_safety import (
     ALL_HARMFUL_CATEGORIES, BORDERLINE, BENIGN, TOTAL_HARMFUL,
     detect_refusal, generate_response
 )
@@ -270,7 +270,7 @@ def main():
         all_results[model_key] = results
 
         # Save per-model
-        out_path = RESULTS_DIR / f"step20_ocdpo_safety_{model_key}.json"
+        out_path = RESULTS_DIR / f"ocdpo_safety_{model_key}.json"
         with open(out_path, "w") as f:
             json.dump({"model": model_key, "results": results}, f, indent=2)
         print(f"  Saved to {out_path}")
@@ -289,7 +289,7 @@ def main():
         print(f"{mk:<16} {it_rate:>7.1%} {std_rate:>9.1%} {oc_rate:>9.1%} {delta:>+9.2%}")
 
     # Save combined
-    combined_path = RESULTS_DIR / "step20_ocdpo_safety_combined.json"
+    combined_path = RESULTS_DIR / "ocdpo_safety_combined.json"
     with open(combined_path, "w") as f:
         json.dump(all_results, f, indent=2)
     print(f"\nSaved combined to {combined_path}")
@@ -298,7 +298,7 @@ def main():
     try:
         import wandb
         wandb.login()  # uses WANDB_API_KEY env var
-        wandb.init(project="sar-alignment-tax", name="step20-ocdpo-safety")
+        wandb.init(project="anonymous-submission", name="ocdpo-safety")
         for mk, r in all_results.items():
             for variant in ["it", "standard_dpo", "ocdpo"]:
                 wandb.log({f"{mk}/{variant}/overall_refusal": r[variant]["overall_harmful_refusal"]})

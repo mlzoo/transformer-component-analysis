@@ -21,22 +21,22 @@ MODEL_CONFIGS = {
     "qwen2.5-7b": {
         "base": "./models/Qwen2.5-7B",
         "it": "Qwen/Qwen2.5-7B-Instruct",
-        "attribution": "step8_attribution_200_qwen2.5-7b.json",
+        "attribution": "attribution_qwen2.5-7b.json",
     },
     "llama-3.1-8b": {
         "base": "./models/Llama-3.1-8B",
         "it": "./models/Llama-3.1-8B-Instruct",
-        "attribution": "step8_attribution_200_llama-3.1-8b.json",
+        "attribution": "attribution_llama-3.1-8b.json",
     },
     "mistral-7b": {
         "base": "./models/Mistral-7B-v0.3",
         "it": "./models/Mistral-7B-Instruct-v0.3",
-        "attribution": "step8_attribution_200_mistral-7b.json",
+        "attribution": "attribution_mistral-7b.json",
     },
     "yi-1.5-9b": {
         "base": "./models/Yi-1.5-9B",
         "it": "./models/Yi-1.5-9B-Chat",
-        "attribution": "step37_yi_full_pipeline.json",
+        "attribution": "attribution_yi.json",
     },
 }
 
@@ -246,7 +246,7 @@ def main():
         all_results[model_key] = results
 
         # Save per-model
-        out_path = RESULTS_DIR / f"step21_mmlu_{model_key}.json"
+        out_path = RESULTS_DIR / f"mmlu_{model_key}.json"
         with open(out_path, "w") as f:
             json.dump({"model": model_key, "n_questions": len(questions), "results": results}, f, indent=2)
         print(f"  Saved to {out_path}")
@@ -270,7 +270,7 @@ def main():
         "n_questions": n_questions,
         "results": all_results,
     }
-    combined_path = RESULTS_DIR / "step21_mmlu_combined.json"
+    combined_path = RESULTS_DIR / "mmlu_combined.json"
     with open(combined_path, "w") as f:
         json.dump(combined, f, indent=2)
     print(f"\nSaved combined to {combined_path}")
@@ -279,7 +279,7 @@ def main():
     try:
         import wandb
         wandb.login()  # uses WANDB_API_KEY env var
-        wandb.init(project="anonymous-submission", name=f"step21-mmlu-{n_questions}")
+        wandb.init(project="anonymous-submission", name=f"mmlu-{n_questions}")
         for mk, r in all_results.items():
             for variant in ["base", "it", "sar_5pct"]:
                 if variant in r:

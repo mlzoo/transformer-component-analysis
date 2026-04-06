@@ -622,7 +622,7 @@ def evaluate_relevance(model, tokenizer, device, test_cases):
 def load_attribution_scores(model_name):
     """Load attribution scores for SAR."""
     safe_name = model_name.replace("/", "_").replace(" ", "_").lower()
-    for prefix in ["step8_attribution_200", "step1_attribution_expanded", "step1_attribution_fp16"]:
+    for prefix in ["attribution"]:
         path = RESULTS_DIR / f"{prefix}_{safe_name}.json"
         if path.exists():
             with open(path) as f:
@@ -786,7 +786,7 @@ def run_bfcl(base_dir, it_dir, device="cuda:0", model_name="unknown"):
         "n_total": len(SIMPLE_CALLS) + len(MULTI_SELECT) + len(PARALLEL_CALLS) + len(RELEVANCE_DETECTION),
         "results": all_results,
     }
-    out_path = RESULTS_DIR / f"step9_bfcl_{safe_name}.json"
+    out_path = RESULTS_DIR / f"bfcl_{safe_name}.json"
     with open(out_path, "w") as f:
         json.dump(output, f, indent=2, default=str)
     print(f"\nSaved to {out_path}")

@@ -3,12 +3,12 @@ Step 19: OGPSA vs OC-DPO Comparison at Scale (496 UltraFeedback Pairs)
 
 Reviewer concern: Step 11 OGPSA comparison used only 20 preference pairs.
 This repeats the OGPSA vs OC-DPO comparison on 496 UltraFeedback pairs
-(same dataset as step15) to validate whether OGPSA or OC-DPO is more
+(same dataset as previous OC-DPO experiment) to validate whether OGPSA or OC-DPO is more
 effective at reducing alignment tax at realistic data scale.
 
 Conditions:
   - ogpsa: Standard LoRA targets (all 7) with OGPSA gradient projection
-  - ocdpo_exclude_output: OC-DPO (q,k,gate,up only) — reused from step15
+  - ocdpo_exclude_output: OC-DPO (q,k,gate,up only) — reused from previous OC-DPO experiment
 
 OGPSA projects DPO gradients orthogonally to capability-relevant subspaces:
   1. Compute alignment delta: DW = W_IT - W_base for each LoRA target
@@ -18,7 +18,7 @@ OGPSA projects DPO gradients orthogonally to capability-relevant subspaces:
 Models: Qwen2.5-7B, Llama-3.1-8B, Mistral-7B-v0.3
 Training: 496 pairs, 3 epochs, LoRA r=16 alpha=32 mid-third layers, lr=5e-5
 
-Usage: python step19_ogpsa_large.py cuda:0
+Usage: python 07_ogpsa_comparison.py cuda:0
 """
 
 import sys
@@ -32,7 +32,7 @@ from safetensors import safe_open
 RESULTS_DIR = Path("./results")
 
 sys.path.insert(0, "./experiments")
-from step6_ocdpo import EVAL_EXAMPLES, compute_agent_loss, ALL_TARGETS, get_mid_layer_targets
+from 05_ocdpo import EVAL_EXAMPLES, compute_agent_loss, ALL_TARGETS, get_mid_layer_targets
 
 MODEL_CONFIGS = {
     "qwen2.5-7b": {
@@ -76,7 +76,7 @@ STRUCTURED_KEYWORDS = [
 def load_ultrafeedback_pairs(num_pairs=496, seed=42):
     """Load and filter UltraFeedback for structured/agent-relevant preference pairs.
 
-    Same logic as step15 to ensure identical dataset.
+    Same logic as previous OC-DPO experiment to ensure identical dataset.
     """
     from datasets import load_dataset
 
@@ -625,15 +625,15 @@ def run_ocdpo_condition(base_dir, device, tokenizer, train_data, wandb_run=None)
     }
 
 
-def load_step15_results(model_name):
-    """Try to load step15 results for reuse of OC-DPO condition."""
-    path = RESULTS_DIR / f"step15_ocdpo_large_{model_name}.json"
+def load_previous OC-DPO experiment_results(model_name):
+    """Try to load previous OC-DPO experiment results for reuse of OC-DPO condition."""
+    path = RESULTS_DIR / f"ocdpo_large_{model_name}.json"
     if path.exists():
         with open(path) as f:
             data = json.load(f)
         conditions = data.get("conditions", {})
         if "ocdpo_exclude_output" in conditions:
-            print(f"  Found step15 OC-DPO results at {path}")
+            print(f"  Found previous OC-DPO experiment OC-DPO results at {path}")
             return conditions["ocdpo_exclude_output"]
     return None
 
@@ -655,7 +655,7 @@ def run_model(model_name, config, device, train_data):
     wandb.login()  # uses WANDB_API_KEY env var
     run = wandb.init(
         project="anonymous-submission",
-        name=f"step19-ogpsa-large-{model_name}",
+        name=f"ogpsa-comparison-{model_name}",
         config={
             "step": 19,
             "model": model_name,
@@ -681,8 +681,8 @@ def run_model(model_name, config, device, train_data):
 
     results = {}
 
-    # Check for reusable step15 OC-DPO results
-    step15_ocdpo = load_step15_results(model_name)
+    # Check for reusable previous OC-DPO experiment OC-DPO results
+    previous OC-DPO experiment_ocdpo = load_previous OC-DPO experiment_results(model_name)
 
     # Compute capability subspace (needed for OGPSA)
     # Determine mid layers from a quick config load
@@ -703,30 +703,30 @@ def run_model(model_name, config, device, train_data):
     del subspaces
 
     # Run or reuse OC-DPO
-    if step15_ocdpo is not None:
-        print(f"\n  Reusing step15 OC-DPO results for {model_name}")
-        results["ocdpo_exclude_output"] = step15_ocdpo
+    if previous OC-DPO experiment_ocdpo is not None:
+        print(f"\n  Reusing previous OC-DPO experiment OC-DPO results for {model_name}")
+        results["ocdpo_exclude_output"] = previous OC-DPO experiment_ocdpo
         run.log({
-            "ocdpo/pre_agent_loss_reused": step15_ocdpo["pre_loss"],
-            "ocdpo/post_agent_loss_reused": step15_ocdpo["post_loss"],
-            "ocdpo/agent_loss_change_reused": step15_ocdpo["loss_change"],
+            "ocdpo/pre_agent_loss_reused": previous OC-DPO experiment_ocdpo["pre_loss"],
+            "ocdpo/post_agent_loss_reused": previous OC-DPO experiment_ocdpo["post_loss"],
+            "ocdpo/agent_loss_change_reused": previous OC-DPO experiment_ocdpo["loss_change"],
         })
     else:
-        print(f"\n  No step15 results found, running OC-DPO from scratch...")
+        print(f"\n  No previous OC-DPO experiment results found, running OC-DPO from scratch...")
         ocdpo_result = run_ocdpo_condition(base_dir, device, tokenizer, train_data,
                                             wandb_run=run)
         results["ocdpo_exclude_output"] = ocdpo_result
 
-    # Also pull standard DPO from step15 if available
-    step15_path = RESULTS_DIR / f"step15_ocdpo_large_{model_name}.json"
+    # Also pull standard DPO from previous OC-DPO experiment if available
+    previous OC-DPO experiment_path = RESULTS_DIR / f"ocdpo_large_{model_name}.json"
     standard_result = None
-    if step15_path.exists():
-        with open(step15_path) as f:
-            step15_data = json.load(f)
-        if "standard" in step15_data.get("conditions", {}):
-            standard_result = step15_data["conditions"]["standard"]
+    if previous OC-DPO experiment_path.exists():
+        with open(previous OC-DPO experiment_path) as f:
+            previous OC-DPO experiment_data = json.load(f)
+        if "standard" in previous OC-DPO experiment_data.get("conditions", {}):
+            standard_result = previous OC-DPO experiment_data["conditions"]["standard"]
             results["standard"] = standard_result
-            print(f"  Reused step15 standard DPO results")
+            print(f"  Reused previous OC-DPO experiment standard DPO results")
 
     # Summary comparison
     print(f"\n{'='*60}")
@@ -810,7 +810,7 @@ def run_model(model_name, config, device, train_data):
         "subspace_rank": SUBSPACE_RANK,
         "conditions": results,
     }
-    out_path = RESULTS_DIR / f"step19_ogpsa_large_{model_name}.json"
+    out_path = RESULTS_DIR / f"ogpsa_comparison_{model_name}.json"
     with open(out_path, "w") as f:
         json.dump(output, f, indent=2, default=str)
     print(f"\nSaved to {out_path}")
@@ -826,7 +826,7 @@ def main():
     print(f"  Grad accumulation: {GRAD_ACCUM_STEPS}")
     print(f"  DPO beta: {DPO_BETA}")
 
-    # Load training data once (shared across all models, same as step15)
+    # Load training data once (shared across all models, same as previous OC-DPO experiment)
     train_data = load_ultrafeedback_pairs(num_pairs=NUM_PAIRS, seed=42)
 
     # Run each model sequentially
@@ -883,7 +883,7 @@ def main():
         }
 
     # Save combined results
-    combined_path = RESULTS_DIR / "step19_ogpsa_large_combined.json"
+    combined_path = RESULTS_DIR / "ogpsa_comparison_combined.json"
     with open(combined_path, "w") as f:
         json.dump(combined, f, indent=2)
     print(f"\nSaved combined results to {combined_path}")

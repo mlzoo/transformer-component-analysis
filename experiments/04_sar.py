@@ -125,7 +125,7 @@ def apply_sar(model, base_dir, it_dir, attribution_path, k_percent=5.0, strategy
 
 
 # Import agent examples from expanded set
-from step1_attribution import AGENT_EXAMPLES
+from 01_attribution import AGENT_EXAMPLES
 
 
 def run_sar_eval(base_dir, it_dir, device="cuda:0", model_name="unknown"):
@@ -134,9 +134,9 @@ def run_sar_eval(base_dir, it_dir, device="cuda:0", model_name="unknown"):
     # Find attribution results
     safe_name = model_name.replace("/", "_").replace(" ", "_").lower()
     # Try expanded first, then fp16
-    attr_path = RESULTS_DIR / f"step1_attribution_expanded_{safe_name}.json"
+    attr_path = RESULTS_DIR / f"attribution_{safe_name}.json"
     if not attr_path.exists():
-        attr_path = RESULTS_DIR / f"step1_attribution_fp16_{safe_name}.json"
+        attr_path = RESULTS_DIR / f"attribution_{safe_name}.json"
     if not attr_path.exists():
         print(f"ERROR: No attribution results for {model_name}")
         return
@@ -264,7 +264,7 @@ def run_sar_eval(base_dir, it_dir, device="cuda:0", model_name="unknown"):
         "alignment_tax": float(alignment_tax),
         "results": results,
     }
-    out_path = RESULTS_DIR / f"step4_sar_eval_{safe_name}.json"
+    out_path = RESULTS_DIR / f"sar_eval_{safe_name}.json"
     with open(out_path, "w") as f:
         json.dump(output, f, indent=2, default=str)
     print(f"\nSaved to {out_path}")

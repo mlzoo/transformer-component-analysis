@@ -9,7 +9,7 @@ both input activations and output gradients, then compute weight gradient norms
 as ||grad_output^T * input||_F. This works regardless of weight quantization
 because hooks capture fp16/bf16 activation tensors.
 
-Usage: python step42_gradient_72b.py [device_map]  (default: auto)
+Usage: python 19_gradient_72b.py [device_map]  (default: auto)
 """
 
 import sys
@@ -26,7 +26,7 @@ RESULTS_DIR = Path("./results")
 sys.path.insert(0, str(Path(__file__).parent))
 from agent_examples_200 import AGENT_EXAMPLES_200
 
-# DPO preference pairs (same as step3)
+# DPO preference pairs (same as 03_gradient_analysis)
 PREFERENCE_DATA = [
     {"prompt": "You have access to search(query). Find the capital of France.\nThought: I need to search.\nAction: ", "chosen": 'search(query="capital of France")', "rejected": "The capital of France is Paris."},
     {"prompt": 'Respond in JSON: What is 2+2?\n\n{"', "chosen": '"answer": 4}', "rejected": "The answer is 4."},
@@ -416,7 +416,7 @@ def main():
     print(f"    Qwen-72B DPO V/O/Q/K: {dpo_results['vo_qk_ratio']:.2f}x  ← NEW")
 
     # Save
-    out_path = RESULTS_DIR / "step42_gradient_72b.json"
+    out_path = RESULTS_DIR / "gradient_72b.json"
     with open(out_path, "w") as f:
         json.dump(results, f, indent=2, default=str)
     print(f"\nSaved to {out_path}")

@@ -1,14 +1,14 @@
 """
 Step 38: Attribution on external BFCL data (patching on non-training data).
 
-Runs the same activation-patching attribution as step1, but on BFCL examples
+Runs the same activation-patching attribution as 01_attribution, but on BFCL examples
 instead of the 209 agent examples. If the same output-pathway concentration
 appears, it rules out overfitting to the custom evaluation set.
 
 Uses a subset of BFCL (simple + multiple categories) formatted as
 prompt-target pairs for CE loss computation.
 
-Usage: python step38_bfcl_attribution.py <model_name> <device>
+Usage: python 17_bfcl_attribution.py <model_name> <device>
 """
 
 import sys, json, torch
@@ -207,7 +207,7 @@ def run_analysis(model_name, device):
     baseline_loss = compute_loss(model, tokenizer, examples, device)
     print(f"  Baseline: {baseline_loss:.4f}")
 
-    # Attribution via activation patching (same as step1)
+    # Attribution via activation patching (same as 01_attribution)
     print(f"\nRunning attribution patching...")
     components = []
     type_scores = defaultdict(list)
@@ -322,7 +322,7 @@ def run_analysis(model_name, device):
         "components": components,
     }
 
-    out_path = RESULTS_DIR / f"step38_bfcl_attribution_{model_name}.json"
+    out_path = RESULTS_DIR / f"bfcl_attribution_{model_name}.json"
     with open(out_path, "w") as f:
         json.dump(results, f, indent=2)
     print(f"\nSaved to {out_path}")

@@ -11,7 +11,7 @@ Approach:
 4. Cumulative rollback by harm rank: progressively roll back top-K components
 5. Compare: MLP+V/O vs Q/K recovery contribution
 
-Uses activation patching (hooks) like step1 — no weight copying needed.
+Uses activation patching (hooks) like 01_attribution — no weight copying needed.
 """
 
 import sys
@@ -118,7 +118,7 @@ def run_causal_v2(base_dir, it_dir, device="cuda:0", model_name="unknown"):
 
     # Load attribution results
     safe_name = model_name.replace("/", "_").replace(" ", "_").lower()
-    attr_path = RESULTS_DIR / f"step1_attribution_fp16_{safe_name}.json"
+    attr_path = RESULTS_DIR / f"attribution_{safe_name}.json"
     if not attr_path.exists():
         print(f"ERROR: No attribution results at {attr_path}")
         return
@@ -479,7 +479,7 @@ def run_causal_v2(base_dir, it_dir, device="cuda:0", model_name="unknown"):
         "heuristic_rollback": heuristic_results,
     }
 
-    out_path = RESULTS_DIR / f"step2_causal_v2_{safe_name}.json"
+    out_path = RESULTS_DIR / f"causal_intervention_{safe_name}.json"
     with open(out_path, "w") as f:
         json.dump(output, f, indent=2, default=str)
     print(f"\nSaved to {out_path}")
