@@ -1,0 +1,30 @@
+{
+  "model": "qwen2.5-7b",
+  "variants": {
+    "it": {
+      "judge_refusal_rate": 0.864,
+      "keyword_refusal_rate": 0.884,
+      "judge_refused": 216,
+      "keyword_refused": 221,
+      "n_harmful": 250,
+      "benign_fp": 0.0
+    },
+    "standard_dpo": {
+      "judge_refusal_rate": 0.876,
+      "keyword_refusal_rate": 0.88,
+      "judge_refused": 219,
+      "keyword_refused": 220,
+      "n_harmful": 250,
+      "benign_fp": 0.0
+    },
+    "ocdpo": {
+      "judge_refusal_rate": 0.868,
+      "keyword_refusal_rate": 0.876,
+      "judge_refused": 217,
+      "keyword_refused": 219,
+      "n_harmful": 250,
+      "benign_fp": 0.0
+    }
+  },
+  "delta_it_ocdpo_judge": 0.004
+}

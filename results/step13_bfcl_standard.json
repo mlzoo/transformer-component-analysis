@@ -1,0 +1,321 @@
+{
+  "analysis": "step13_bfcl_standard",
+  "dataset": "gorilla-llm/Berkeley-Function-Calling-Leaderboard",
+  "categories": {
+    "simple": 100,
+    "multiple": 100,
+    "parallel": 100,
+    "relevance": 18
+  },
+  "total_examples": 318,
+  "results": {
+    "qwen2.5-7b": {
+      "base": {
+        "simple": {
+          "func_accuracy": 1.0,
+          "args_accuracy": 0.81,
+          "ast_accuracy": 0.81,
+          "n": 100
+        },
+        "multiple": {
+          "func_accuracy": 1.0,
+          "args_accuracy": 0.84,
+          "ast_accuracy": 0.84,
+          "n": 100
+        },
+        "parallel": {
+          "func_accuracy": 0.92,
+          "args_accuracy": 0.74,
+          "ast_accuracy": 0.74,
+          "n": 100
+        },
+        "relevance": {
+          "func_accuracy": 0.16666666666666666,
+          "args_accuracy": 0.16666666666666666,
+          "ast_accuracy": 0.16666666666666666,
+          "n": 18
+        },
+        "overall": {
+          "func_accuracy": 0.9276729559748428,
+          "ast_accuracy": 0.7610062893081762,
+          "n": 318
+        }
+      },
+      "it": {
+        "simple": {
+          "func_accuracy": 1.0,
+          "args_accuracy": 0.85,
+          "ast_accuracy": 0.85,
+          "n": 100
+        },
+        "multiple": {
+          "func_accuracy": 0.98,
+          "args_accuracy": 0.85,
+          "ast_accuracy": 0.85,
+          "n": 100
+        },
+        "parallel": {
+          "func_accuracy": 0.94,
+          "args_accuracy": 0.77,
+          "ast_accuracy": 0.77,
+          "n": 100
+        },
+        "relevance": {
+          "func_accuracy": 1.0,
+          "args_accuracy": 1.0,
+          "ast_accuracy": 1.0,
+          "n": 18
+        },
+        "overall": {
+          "func_accuracy": 0.9748427672955975,
+          "ast_accuracy": 0.8333333333333334,
+          "n": 318
+        }
+      },
+      "sar_5pct": {
+        "simple": {
+          "func_accuracy": 1.0,
+          "args_accuracy": 0.85,
+          "ast_accuracy": 0.85,
+          "n": 100
+        },
+        "multiple": {
+          "func_accuracy": 0.98,
+          "args_accuracy": 0.87,
+          "ast_accuracy": 0.87,
+          "n": 100
+        },
+        "parallel": {
+          "func_accuracy": 0.94,
+          "args_accuracy": 0.78,
+          "ast_accuracy": 0.78,
+          "n": 100
+        },
+        "relevance": {
+          "func_accuracy": 1.0,
+          "args_accuracy": 1.0,
+          "ast_accuracy": 1.0,
+          "n": 18
+        },
+        "overall": {
+          "func_accuracy": 0.9748427672955975,
+          "ast_accuracy": 0.8427672955974843,
+          "n": 318
+        }
+      }
+    },
+    "llama-3.1-8b": {
+      "base": {
+        "simple": {
+          "func_accuracy": 1.0,
+          "args_accuracy": 0.82,
+          "ast_accuracy": 0.82,
+          "n": 100
+        },
+        "multiple": {
+          "func_accuracy": 0.92,
+          "args_accuracy": 0.73,
+          "ast_accuracy": 0.73,
+          "n": 100
+        },
+        "parallel": {
+          "func_accuracy": 0.83,
+          "args_accuracy": 0.67,
+          "ast_accuracy": 0.67,
+          "n": 100
+        },
+        "relevance": {
+          "func_accuracy": 0.5,
+          "args_accuracy": 0.5,
+          "ast_accuracy": 0.5,
+          "n": 18
+        },
+        "overall": {
+          "func_accuracy": 0.8930817610062893,
+          "ast_accuracy": 0.7264150943396226,
+          "n": 318
+        }
+      },
+      "it": {
+        "simple": {
+          "func_accuracy": 0.99,
+          "args_accuracy": 0.81,
+          "ast_accuracy": 0.81,
+          "n": 100
+        },
+        "multiple": {
+          "func_accuracy": 0.96,
+          "args_accuracy": 0.8,
+          "ast_accuracy": 0.8,
+          "n": 100
+        },
+        "parallel": {
+          "func_accuracy": 0.98,
+          "args_accuracy": 0.75,
+          "ast_accuracy": 0.75,
+          "n": 100
+        },
+        "relevance": {
+          "func_accuracy": 0.6666666666666666,
+          "args_accuracy": 0.6666666666666666,
+          "ast_accuracy": 0.6666666666666666,
+          "n": 18
+        },
+        "overall": {
+          "func_accuracy": 0.9591194968553459,
+          "ast_accuracy": 0.779874213836478,
+          "n": 318
+        }
+      },
+      "sar_5pct": {
+        "simple": {
+          "func_accuracy": 0.99,
+          "args_accuracy": 0.82,
+          "ast_accuracy": 0.82,
+          "n": 100
+        },
+        "multiple": {
+          "func_accuracy": 0.98,
+          "args_accuracy": 0.82,
+          "ast_accuracy": 0.82,
+          "n": 100
+        },
+        "parallel": {
+          "func_accuracy": 0.96,
+          "args_accuracy": 0.74,
+          "ast_accuracy": 0.74,
+          "n": 100
+        },
+        "relevance": {
+          "func_accuracy": 0.7222222222222222,
+          "args_accuracy": 0.7222222222222222,
+          "ast_accuracy": 0.7222222222222222,
+          "n": 18
+        },
+        "overall": {
+          "func_accuracy": 0.9622641509433962,
+          "ast_accuracy": 0.789308176100629,
+          "n": 318
+        }
+      }
+    },
+    "mistral-7b": {
+      "base": {
+        "simple": {
+          "func_accuracy": 0.98,
+          "args_accuracy": 0.74,
+          "ast_accuracy": 0.74,
+          "n": 100
+        },
+        "multiple": {
+          "func_accuracy": 0.98,
+          "args_accuracy": 0.82,
+          "ast_accuracy": 0.82,
+          "n": 100
+        },
+        "parallel": {
+          "func_accuracy": 0.94,
+          "args_accuracy": 0.64,
+          "ast_accuracy": 0.64,
+          "n": 100
+        },
+        "relevance": {
+          "func_accuracy": 0.3888888888888889,
+          "args_accuracy": 0.3888888888888889,
+          "ast_accuracy": 0.3888888888888889,
+          "n": 18
+        },
+        "overall": {
+          "func_accuracy": 0.9339622641509434,
+          "ast_accuracy": 0.7138364779874213,
+          "n": 318
+        }
+      },
+      "it": {
+        "simple": {
+          "func_accuracy": 0.99,
+          "args_accuracy": 0.72,
+          "ast_accuracy": 0.72,
+          "n": 100
+        },
+        "multiple": {
+          "func_accuracy": 0.99,
+          "args_accuracy": 0.87,
+          "ast_accuracy": 0.87,
+          "n": 100
+        },
+        "parallel": {
+          "func_accuracy": 0.95,
+          "args_accuracy": 0.7,
+          "ast_accuracy": 0.7,
+          "n": 100
+        },
+        "relevance": {
+          "func_accuracy": 0.0,
+          "args_accuracy": 0.0,
+          "ast_accuracy": 0.0,
+          "n": 18
+        },
+        "overall": {
+          "func_accuracy": 0.9213836477987422,
+          "ast_accuracy": 0.720125786163522,
+          "n": 318
+        }
+      },
+      "sar_5pct": {
+        "simple": {
+          "func_accuracy": 1.0,
+          "args_accuracy": 0.74,
+          "ast_accuracy": 0.74,
+          "n": 100
+        },
+        "multiple": {
+          "func_accuracy": 0.99,
+          "args_accuracy": 0.87,
+          "ast_accuracy": 0.87,
+          "n": 100
+        },
+        "parallel": {
+          "func_accuracy": 0.94,
+          "args_accuracy": 0.71,
+          "ast_accuracy": 0.71,
+          "n": 100
+        },
+        "relevance": {
+          "func_accuracy": 0.05555555555555555,
+          "args_accuracy": 0.05555555555555555,
+          "ast_accuracy": 0.05555555555555555,
+          "n": 18
+        },
+        "overall": {
+          "func_accuracy": 0.9245283018867925,
+          "ast_accuracy": 0.7327044025157232,
+          "n": 318
+        }
+      }
+    }
+  },
+  "alignment_tax": {
+    "qwen2.5-7b": {
+      "base_ast": 0.7610062893081762,
+      "it_ast": 0.8333333333333334,
+      "tax": 0.07232704402515722,
+      "sar5_ast": 0.8427672955974843,
+      "sar5_recovery": 0.009433962264150941
+    },
+    "llama-3.1-8b": {
+      "base_ast": 0.7264150943396226,
+      "it_ast": 0.779874213836478,
+      "tax": 0.053459119496855445,
+      "sar5_ast": 0.789308176100629,
+      "sar5_recovery": 0.009433962264150941
+    },
+    "mistral-7b": {
+      "base_ast": 0.7138364779874213,
+      "it_ast": 0.720125786163522,
+      "tax": 0.0062893081761006275,
+      "sar5_ast": 0.7327044025157232,
+      "sar5_recovery": 0.012578616352201255
+    }
+  }
+}

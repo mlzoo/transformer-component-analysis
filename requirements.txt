@@ -1,0 +1,11 @@
+torch>=2.1.0
+transformers>=4.48.0
+peft>=0.14.0
+trl>=0.14.0
+safetensors
+scipy
+numpy
+matplotlib
+seaborn
+wandb
+datasets
