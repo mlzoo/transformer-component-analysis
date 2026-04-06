@@ -1,5 +1,5 @@
 """
-Step 4: SAR (Surgical Alignment Reversal) Implementation
+SAR (Surgical Alignment Reversal) Implementation
 
 Given attribution results, create a SAR model by selectively rolling back
 the top-k% most harmful components.
@@ -125,7 +125,9 @@ def apply_sar(model, base_dir, it_dir, attribution_path, k_percent=5.0, strategy
 
 
 # Import agent examples from expanded set
-from 01_attribution import AGENT_EXAMPLES
+import importlib
+_attribution = importlib.import_module("01_attribution")
+AGENT_EXAMPLES = _attribution.AGENT_EXAMPLES
 
 
 def run_sar_eval(base_dir, it_dir, device="cuda:0", model_name="unknown"):

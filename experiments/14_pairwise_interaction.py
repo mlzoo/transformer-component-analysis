@@ -1,5 +1,5 @@
 """
-Step 34: Pairwise interaction analysis for activation patching.
+Pairwise interaction analysis for activation patching.
 
 Tests whether one-at-a-time activation patching misses important non-linear
 interactions between components. For top-K harmful components, computes:
@@ -37,7 +37,10 @@ MODEL_PAIRS = {
 TOP_K = 10  # Analyze top 10 harmful components
 
 sys.path.insert(0, "./experiments")
-from 01_attribution import AGENT_EXAMPLES, compute_loss
+import importlib
+_attribution = importlib.import_module("01_attribution")
+AGENT_EXAMPLES = _attribution.AGENT_EXAMPLES
+compute_loss = _attribution.compute_loss
 
 
 def load_attribution(model_name):

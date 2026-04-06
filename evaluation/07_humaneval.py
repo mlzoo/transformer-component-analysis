@@ -1,5 +1,5 @@
 """
-Step 18: HumanEval Code Generation Benchmark
+HumanEval Code Generation Benchmark
 
 Evaluates code generation capability using OpenAI's HumanEval benchmark (164 problems).
 Measures pass@1 for Base, IT, and SAR-5% variants across 3 model families to quantify

@@ -1,5 +1,5 @@
 """
-Step 28: Split Validation — attribute on first 100 examples, evaluate SAR on last 109.
+Split Validation — attribute on first 100 examples, evaluate SAR on last 109.
 
 Addresses reviewer concern that SAR may overfit to the same examples used for attribution.
 If SAR still recovers alignment tax on held-out examples, overfitting is ruled out.

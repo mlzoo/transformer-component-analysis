@@ -1,5 +1,5 @@
 """
-Step 1 expanded: Attribution with larger, more diverse agent example set.
+Attribution with larger, more diverse agent example set.
 50 examples instead of 20 for more statistical power on V/O vs Q/K.
 """
 

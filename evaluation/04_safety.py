@@ -1,5 +1,5 @@
 """
-Step 14: Large-Scale Safety Evaluation
+Large-Scale Safety Evaluation
 
 Comprehensive safety evaluation using 500+ harmful prompts from multiple sources:
   - 200 AdvBench-style harmful behaviors (curated, 5 categories x 40)
@@ -818,7 +818,7 @@ if __name__ == "__main__":
         device = sys.argv[1] if len(sys.argv) > 1 else "cuda:0"
 
     models_to_run = [single_model] if single_model else list(MODEL_CONFIGS.keys())
-    print(f"Step 14: Large-Scale Safety Evaluation (deterministic, greedy decoding)")
+    print(f"Large-Scale Safety Evaluation (deterministic, greedy decoding)")
     print(f"Device: {device}")
     print(f"Models: {models_to_run}")
     print(f"Total harmful prompts: {TOTAL_HARMFUL} (200 AdvBench-style + 50 custom)")

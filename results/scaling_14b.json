@@ -1,5 +1,5 @@
 {
-  "experiment": "step12_scaling_14b_v2",
+  "experiment": "scaling_14b",
   "base_model": "Qwen/Qwen2.5-14B",
   "it_model": "Qwen/Qwen2.5-14B-Instruct",
   "fix_note": "v2: corrected harm score sign (bl - patched_loss)",

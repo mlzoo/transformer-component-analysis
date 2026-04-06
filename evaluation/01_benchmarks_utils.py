@@ -1,5 +1,5 @@
 """
-Step 7: Simple External Evaluation
+Simple External Evaluation
 
 Instead of complex benchmark infrastructure, evaluate models on:
 1. General capability: perplexity on held-out text (WikiText-2)
@@ -17,7 +17,9 @@ from pathlib import Path
 
 RESULTS_DIR = Path("./results")
 
-from 01_attribution import AGENT_EXAMPLES
+import importlib
+_attribution = importlib.import_module("01_attribution")
+AGENT_EXAMPLES = _attribution.AGENT_EXAMPLES
 
 # Simple MMLU examples (5-shot format, multiple choice)
 MMLU_EXAMPLES = [

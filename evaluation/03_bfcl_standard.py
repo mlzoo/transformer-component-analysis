@@ -1,5 +1,5 @@
 """
-Step 13: Standard BFCL Evaluation
+Standard BFCL Evaluation
 
 Evaluates Base, IT, and SAR-5% models on the REAL Berkeley Function Calling
 Leaderboard dataset (gorilla-llm/Berkeley-Function-Calling-Leaderboard).
@@ -711,7 +711,7 @@ def build_synthetic_bfcl():
 
 def main():
     device = sys.argv[1] if len(sys.argv) > 1 else "cuda:0"
-    print(f"Step 13: Standard BFCL Evaluation")
+    print(f"Standard BFCL Evaluation")
     print(f"Device: {device}")
     print(f"=" * 70)
 

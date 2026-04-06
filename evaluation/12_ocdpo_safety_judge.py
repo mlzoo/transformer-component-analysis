@@ -1,5 +1,5 @@
 """
-Step 44: OC-DPO Safety Evaluation with LLM Judge (Claude Opus 4.6 via Bedrock).
+OC-DPO Safety Evaluation with LLM Judge (Claude Opus 4.6 via Bedrock).
 
 Re-runs OC-DPO safety evaluation but:
   1. Saves all raw responses
@@ -22,14 +22,20 @@ RESULTS_DIR = Path("./results")
 RESPONSES_DIR = RESULTS_DIR / "ocdpo_safety_responses"
 
 sys.path.insert(0, str(Path(__file__).parent))
-from 04_safety import (
-    ALL_HARMFUL_CATEGORIES, BORDERLINE, BENIGN,
-    detect_refusal, generate_response,
-)
-from 08_ocdpo_safety import (
-    MODEL_CONFIGS, TRAIN_DATA, ALL_TARGETS,
-    get_mid_layer_targets, train_dpo,
-)
+import importlib
+_safety = importlib.import_module("04_safety")
+ALL_HARMFUL_CATEGORIES = _safety.ALL_HARMFUL_CATEGORIES
+BORDERLINE = _safety.BORDERLINE
+BENIGN = _safety.BENIGN
+detect_refusal = _safety.detect_refusal
+generate_response = _safety.generate_response
+
+_ocdpo_safety = importlib.import_module("08_ocdpo_safety")
+MODEL_CONFIGS = _ocdpo_safety.MODEL_CONFIGS
+TRAIN_DATA = _ocdpo_safety.TRAIN_DATA
+ALL_TARGETS = _ocdpo_safety.ALL_TARGETS
+get_mid_layer_targets = _ocdpo_safety.get_mid_layer_targets
+train_dpo = _ocdpo_safety.train_dpo
 
 BEDROCK_MODEL_ID = "us.anthropic.claude-opus-4-6-v1"
 BEDROCK_REGION = "us-east-1"

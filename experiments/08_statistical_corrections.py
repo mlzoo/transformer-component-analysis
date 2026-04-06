@@ -1,5 +1,5 @@
 """
-Step 26: Compute Bonferroni-corrected p-values for V/O vs Q/K attribution.
+Compute Bonferroni-corrected p-values for V/O vs Q/K attribution.
 
 Addresses reviewer concern about multiple comparisons across 4 models.
 No GPU needed — reads existing attribution data.

@@ -1,5 +1,5 @@
 """
-Step 42: Gradient Analysis at 72B Scale (Qwen2.5-72B-Instruct).
+Gradient Analysis at 72B Scale (Qwen2.5-72B-Instruct).
 
 Tests whether the softmax Jacobian gradient asymmetry (V/O > Q/K) persists
 at 72B scale. Uses bitsandbytes 4-bit quantization on 4x A10G.

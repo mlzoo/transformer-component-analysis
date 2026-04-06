@@ -1,5 +1,5 @@
 """
-Step 43: LLM-as-Judge Safety Evaluation using Claude Opus 4.6 via Bedrock.
+LLM-as-Judge Safety Evaluation using Claude Opus 4.6 via Bedrock.
 
 Replaces keyword-matching refusal detection with Claude Opus 4.6 judgments.
 Two phases:
@@ -25,11 +25,16 @@ RESPONSES_DIR = RESULTS_DIR / "safety_responses"
 
 # Import prompts and utilities from 04_safety
 sys.path.insert(0, str(Path(__file__).parent))
-from 04_safety import (
-    ALL_HARMFUL_CATEGORIES, BORDERLINE, BENIGN,
-    MODEL_CONFIGS, detect_refusal, generate_response,
-    load_attribution_scores, apply_sar,
-)
+import importlib
+_safety = importlib.import_module("04_safety")
+ALL_HARMFUL_CATEGORIES = _safety.ALL_HARMFUL_CATEGORIES
+BORDERLINE = _safety.BORDERLINE
+BENIGN = _safety.BENIGN
+MODEL_CONFIGS = _safety.MODEL_CONFIGS
+detect_refusal = _safety.detect_refusal
+generate_response = _safety.generate_response
+load_attribution_scores = _safety.load_attribution_scores
+apply_sar = _safety.apply_sar
 
 BEDROCK_MODEL_ID = "us.anthropic.claude-opus-4-6-v1"
 BEDROCK_REGION = "us-east-1"

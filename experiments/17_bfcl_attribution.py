@@ -1,5 +1,5 @@
 """
-Step 38: Attribution on external BFCL data (patching on non-training data).
+Attribution on external BFCL data (patching on non-training data).
 
 Runs the same activation-patching attribution as 01_attribution, but on BFCL examples
 instead of the 209 agent examples. If the same output-pathway concentration

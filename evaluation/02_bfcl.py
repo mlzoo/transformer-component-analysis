@@ -1,5 +1,5 @@
 """
-Step 9: Function Calling Benchmark (BFCL-style)
+Function Calling Benchmark (BFCL-style)
 
 Evaluates structured function calling capability across Base/IT/SAR models.
 Inspired by Berkeley Function Calling Leaderboard (BFCL) categories:

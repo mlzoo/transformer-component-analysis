@@ -1,5 +1,5 @@
 """
-Step 31: Bootstrap CI for Split Validation Gap
+Bootstrap CI for Split Validation Gap
 
 Compute bootstrap confidence intervals for the gap between training-split and
 held-out-split SAR recovery, to show the 13pp gap is within expected variance.

@@ -1,5 +1,5 @@
 """
-Step 29: Per-category alignment tax breakdown.
+Per-category alignment tax breakdown.
 
 Classify 209 agent examples into task categories and compute alignment tax
 (IT loss - base loss) per category. Shows that even models with negative overall

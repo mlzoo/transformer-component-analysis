@@ -1,5 +1,5 @@
 """
-Step 17: IFEval Benchmark Evaluation
+IFEval Benchmark Evaluation
 
 Evaluates instruction-following capability using the IFEval benchmark
 (google/IFEval, 541 prompts) across Base, IT, and SAR-5% model variants
@@ -630,7 +630,7 @@ def apply_sar(model, base_dir, attribution_scores, k_pct=5):
 def main():
     device = sys.argv[1] if len(sys.argv) > 1 else "cuda:0"
     model_filter = sys.argv[2] if len(sys.argv) > 2 else None
-    print(f"Step 17: IFEval Benchmark Evaluation")
+    print(f"IFEval Benchmark Evaluation")
     print(f"Device: {device}")
     print(f"=" * 70)
 

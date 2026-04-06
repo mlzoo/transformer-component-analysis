@@ -6,7 +6,9 @@ protobuf, type annotations, math expressions, data transforms, etc.
 """
 
 # Import original 49 examples
-from 01_attribution import AGENT_EXAMPLES as BASE_EXAMPLES
+import importlib
+_attribution = importlib.import_module("01_attribution")
+BASE_EXAMPLES = _attribution.AGENT_EXAMPLES
 
 # 160+ additional examples
 EXTRA_EXAMPLES = [

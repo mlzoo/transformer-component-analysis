@@ -1,5 +1,5 @@
 """
-Step 36: Gradient-dot-delta attribution — patching-free alternative.
+Gradient-dot-delta attribution — patching-free alternative.
 
 For each component (t, l), computes:
   attribution(t,l) = <∇_{W_t^l} L_agent, ΔW_t^l>
@@ -37,7 +37,9 @@ MODEL_PAIRS = {
 }
 
 sys.path.insert(0, "./experiments")
-from 01_attribution import AGENT_EXAMPLES
+import importlib
+_attribution = importlib.import_module("01_attribution")
+AGENT_EXAMPLES = _attribution.AGENT_EXAMPLES
 
 
 def classify_component(name):

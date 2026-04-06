@@ -1,5 +1,5 @@
 """
-Step 2 v2: Causal Intervention via Cumulative Component Rollback
+Causal Intervention via Cumulative Component Rollback
 
 For the paper's causal claim: "rolling back V/O and output-pathway components
 recovers >90% of structured token probability suppressed by alignment."

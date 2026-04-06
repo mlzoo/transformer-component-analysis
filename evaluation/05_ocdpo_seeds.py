@@ -1,12 +1,12 @@
 """
-Step 16: OC-DPO with Multiple Random Seeds for Confidence Intervals
+OC-DPO with Multiple Random Seeds for Confidence Intervals
 
 Runs the 2 key conditions (standard DPO vs OC-DPO exclude-output) across
 5 random seeds on all 3 model families. Reports mean +/- std for alignment
 tax reduction, suitable for NeurIPS confidence intervals.
 
 Usage:
-    python ocdpo_seeds.py cuda:3
+    python 05_ocdpo_seeds.py cuda:3
 """
 
 import sys
@@ -17,14 +17,14 @@ import numpy as np
 from pathlib import Path
 
 sys.path.insert(0, "./experiments")
-from 05_ocdpo import (
-    TRAIN_DATA,
-    EVAL_EXAMPLES,
-    compute_agent_loss,
-    ALL_TARGETS,
-    get_mid_layer_targets,
-    CONDITION_TARGETS,
-)
+import importlib
+_ocdpo = importlib.import_module("05_ocdpo")
+TRAIN_DATA = _ocdpo.TRAIN_DATA
+EVAL_EXAMPLES = _ocdpo.EVAL_EXAMPLES
+compute_agent_loss = _ocdpo.compute_agent_loss
+ALL_TARGETS = _ocdpo.ALL_TARGETS
+get_mid_layer_targets = _ocdpo.get_mid_layer_targets
+CONDITION_TARGETS = _ocdpo.CONDITION_TARGETS
 
 RESULTS_DIR = Path("./results")
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -321,7 +321,6 @@ def main():
             project="anonymous-submission",
             name=f"ocdpo-seeds-{model_name}",
             config={
-                "step": 16,
                 "experiment": "ocdpo_seeds",
                 "model": model_name,
                 "seeds": SEEDS,

@@ -1,5 +1,5 @@
 """
-Step 21: MMLU 1000-Question Evaluation
+MMLU 1000-Question Evaluation
 
 Evaluate Base/IT/SAR-5% on 1000 MMLU questions using log-prob MC accuracy.
 Addresses reviewer concern: "20 MMLU questions is completely insufficient."
@@ -233,7 +233,7 @@ def main():
     device = sys.argv[1] if len(sys.argv) > 1 else "cuda:0"
     n_questions = int(sys.argv[2]) if len(sys.argv) > 2 else 1000
     model_filter = sys.argv[3] if len(sys.argv) > 3 else None
-    print(f"Step 21: MMLU {n_questions}-Question Evaluation")
+    print(f"MMLU {n_questions}-Question Evaluation")
     print(f"Device: {device}")
 
     questions = load_mmlu_questions(n=n_questions)

@@ -1,7 +1,7 @@
 """
-Step 19: OGPSA vs OC-DPO Comparison at Scale (496 UltraFeedback Pairs)
+OGPSA vs OC-DPO Comparison at Scale (496 UltraFeedback Pairs)
 
-Reviewer concern: Step 11 OGPSA comparison used only 20 preference pairs.
+Reviewer concern: Initial OGPSA comparison used only 20 preference pairs.
 This repeats the OGPSA vs OC-DPO comparison on 496 UltraFeedback pairs
 (same dataset as previous OC-DPO experiment) to validate whether OGPSA or OC-DPO is more
 effective at reducing alignment tax at realistic data scale.
@@ -32,7 +32,12 @@ from safetensors import safe_open
 RESULTS_DIR = Path("./results")
 
 sys.path.insert(0, "./experiments")
-from 05_ocdpo import EVAL_EXAMPLES, compute_agent_loss, ALL_TARGETS, get_mid_layer_targets
+import importlib
+_ocdpo = importlib.import_module("05_ocdpo")
+EVAL_EXAMPLES = _ocdpo.EVAL_EXAMPLES
+compute_agent_loss = _ocdpo.compute_agent_loss
+ALL_TARGETS = _ocdpo.ALL_TARGETS
+get_mid_layer_targets = _ocdpo.get_mid_layer_targets
 
 MODEL_CONFIGS = {
     "qwen2.5-7b": {
@@ -625,15 +630,15 @@ def run_ocdpo_condition(base_dir, device, tokenizer, train_data, wandb_run=None)
     }
 
 
-def load_previous OC-DPO experiment_results(model_name):
-    """Try to load previous OC-DPO experiment results for reuse of OC-DPO condition."""
+def load_prior_ocdpo_results(model_name):
+    """Try to load prior OC-DPO results for reuse."""
     path = RESULTS_DIR / f"ocdpo_large_{model_name}.json"
     if path.exists():
         with open(path) as f:
             data = json.load(f)
         conditions = data.get("conditions", {})
         if "ocdpo_exclude_output" in conditions:
-            print(f"  Found previous OC-DPO experiment OC-DPO results at {path}")
+            print(f"  Found prior OC-DPO results at {path}")
             return conditions["ocdpo_exclude_output"]
     return None
 
@@ -657,7 +662,7 @@ def run_model(model_name, config, device, train_data):
         project="anonymous-submission",
         name=f"ogpsa-comparison-{model_name}",
         config={
-            "step": 19,
+            "experiment": "ogpsa_comparison",
             "model": model_name,
             "base_dir": base_dir,
             "it_dir": it_dir,
@@ -681,8 +686,8 @@ def run_model(model_name, config, device, train_data):
 
     results = {}
 
-    # Check for reusable previous OC-DPO experiment OC-DPO results
-    previous OC-DPO experiment_ocdpo = load_previous OC-DPO experiment_results(model_name)
+    # Check for reusable prior OC-DPO results
+    prior_ocdpo = load_prior_ocdpo_results(model_name)
 
     # Compute capability subspace (needed for OGPSA)
     # Determine mid layers from a quick config load
@@ -703,30 +708,30 @@ def run_model(model_name, config, device, train_data):
     del subspaces
 
     # Run or reuse OC-DPO
-    if previous OC-DPO experiment_ocdpo is not None:
-        print(f"\n  Reusing previous OC-DPO experiment OC-DPO results for {model_name}")
-        results["ocdpo_exclude_output"] = previous OC-DPO experiment_ocdpo
+    if prior_ocdpo is not None:
+        print(f"\n  Reusing prior OC-DPO results for {model_name}")
+        results["ocdpo_exclude_output"] = prior_ocdpo
         run.log({
-            "ocdpo/pre_agent_loss_reused": previous OC-DPO experiment_ocdpo["pre_loss"],
-            "ocdpo/post_agent_loss_reused": previous OC-DPO experiment_ocdpo["post_loss"],
-            "ocdpo/agent_loss_change_reused": previous OC-DPO experiment_ocdpo["loss_change"],
+            "ocdpo/pre_agent_loss_reused": prior_ocdpo["pre_loss"],
+            "ocdpo/post_agent_loss_reused": prior_ocdpo["post_loss"],
+            "ocdpo/agent_loss_change_reused": prior_ocdpo["loss_change"],
         })
     else:
-        print(f"\n  No previous OC-DPO experiment results found, running OC-DPO from scratch...")
+        print(f"\n  No prior OC-DPO results found, running from scratch...")
         ocdpo_result = run_ocdpo_condition(base_dir, device, tokenizer, train_data,
                                             wandb_run=run)
         results["ocdpo_exclude_output"] = ocdpo_result
 
-    # Also pull standard DPO from previous OC-DPO experiment if available
-    previous OC-DPO experiment_path = RESULTS_DIR / f"ocdpo_large_{model_name}.json"
+    # Also pull standard DPO from prior OC-DPO results if available
+    prior_ocdpo_path = RESULTS_DIR / f"ocdpo_large_{model_name}.json"
     standard_result = None
-    if previous OC-DPO experiment_path.exists():
-        with open(previous OC-DPO experiment_path) as f:
-            previous OC-DPO experiment_data = json.load(f)
-        if "standard" in previous OC-DPO experiment_data.get("conditions", {}):
-            standard_result = previous OC-DPO experiment_data["conditions"]["standard"]
+    if prior_ocdpo_path.exists():
+        with open(prior_ocdpo_path) as f:
+            prior_data = json.load(f)
+        if "standard" in prior_data.get("conditions", {}):
+            standard_result = prior_data["conditions"]["standard"]
             results["standard"] = standard_result
-            print(f"  Reused previous OC-DPO experiment standard DPO results")
+            print(f"  Reused prior standard DPO results")
 
     # Summary comparison
     print(f"\n{'='*60}")
@@ -821,7 +826,7 @@ def run_model(model_name, config, device, train_data):
 def main():
     device = sys.argv[1] if len(sys.argv) > 1 else "cuda:0"
     print(f"Device: {device}")
-    print(f"Step 19: OGPSA vs OC-DPO at Scale (496 UltraFeedback Pairs)")
+    print(f"OGPSA vs OC-DPO at Scale (496 UltraFeedback Pairs)")
     print(f"  Subspace rank: {SUBSPACE_RANK}")
     print(f"  Grad accumulation: {GRAD_ACCUM_STEPS}")
     print(f"  DPO beta: {DPO_BETA}")

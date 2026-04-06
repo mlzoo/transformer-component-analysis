@@ -1,5 +1,5 @@
 """
-Step 41: DARE and TIES-Merging baselines for comparison with SAR.
+DARE and TIES-Merging baselines for comparison with SAR.
 
 DARE (Yu et al. 2024): Randomly drop alignment deltas with probability p, then rescale.
   w_merged = w_base + mask * delta / (1-p), where mask ~ Bernoulli(1-p)

@@ -1,5 +1,5 @@
 {
-  "analysis": "step13_bfcl_standard",
+  "analysis": "bfcl_standard",
   "dataset": "gorilla-llm/Berkeley-Function-Calling-Leaderboard",
   "categories": {
     "simple": 100,

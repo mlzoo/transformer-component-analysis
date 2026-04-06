@@ -1,5 +1,5 @@
 """
-Step 6 v4: Output-Constrained DPO via Selective LoRA
+Output-Constrained DPO (OC-DPO) via Selective LoRA
 
 Standard approach: apply LoRA to all attention + MLP projections during DPO.
 OC-DPO approach: EXCLUDE output-pathway components (V/O + W_down) from LoRA.
@@ -49,7 +49,9 @@ TRAIN_DATA = [
     {"prompt": "Terraform: EC2\n\nresource \"aws_instance\" \"web\" {\n  ", "chosen": 'ami = "ami-abc"\n  instance_type = "t2.micro"', "rejected": "Create an EC2 resource."},
 ]
 
-from 01_attribution import AGENT_EXAMPLES as EVAL_EXAMPLES
+import importlib
+_attribution = importlib.import_module("01_attribution")
+EVAL_EXAMPLES = _attribution.AGENT_EXAMPLES
 
 
 def compute_agent_loss(model, tokenizer, examples, device):

@@ -1,5 +1,5 @@
 """
-Step 32: OGPSA + Output-Pathway Hybrid
+OGPSA + Output-Pathway Hybrid
 
 Reviewer suggestion: restrict OGPSA's gradient projection to only output-pathway
 components (V/O/W_down), letting Q/K/gate/up train with standard LoRA.
@@ -26,7 +26,12 @@ from safetensors import safe_open
 RESULTS_DIR = Path("./results")
 
 sys.path.insert(0, "./experiments")
-from 05_ocdpo import EVAL_EXAMPLES, compute_agent_loss, ALL_TARGETS, get_mid_layer_targets
+import importlib
+_ocdpo = importlib.import_module("05_ocdpo")
+EVAL_EXAMPLES = _ocdpo.EVAL_EXAMPLES
+compute_agent_loss = _ocdpo.compute_agent_loss
+ALL_TARGETS = _ocdpo.ALL_TARGETS
+get_mid_layer_targets = _ocdpo.get_mid_layer_targets
 
 MODEL_CONFIGS = {
     "qwen2.5-7b": {
@@ -490,7 +495,7 @@ def main():
     device = sys.argv[1] if len(sys.argv) > 1 else "cuda:0"
     single_model = sys.argv[2] if len(sys.argv) > 2 else None
 
-    print(f"Step 32: OGPSA + Output-Pathway Hybrid")
+    print(f"OGPSA + Output-Pathway Hybrid")
     print(f"Device: {device}")
 
     train_data = load_ultrafeedback_pairs(num_pairs=NUM_PAIRS, seed=42)

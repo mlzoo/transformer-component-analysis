@@ -1,8 +1,8 @@
 """
-Step 12: Scaling Validation on Qwen2.5-14B
+Scaling Validation on Qwen2.5-14B
 
 Validates output-pathway concentration (V/O > Q/K harm) and OC-DPO
-effectiveness on a 14B model. This extends the 7B findings from steps 1/8/6.
+effectiveness on a 14B model. This extends the 7B findings from attribution and OC-DPO experiments.
 
 Key questions:
   1. Does V/O > Q/K hold at 14B scale?
@@ -31,7 +31,11 @@ from scipy import stats
 
 sys.path.insert(0, "./experiments")
 from agent_examples_200 import AGENT_EXAMPLES_200 as ALL_EXAMPLES  # 209 examples
-from 05_ocdpo import TRAIN_DATA, EVAL_EXAMPLES, ALL_TARGETS
+import importlib
+_ocdpo = importlib.import_module("05_ocdpo")
+TRAIN_DATA = _ocdpo.TRAIN_DATA
+EVAL_EXAMPLES = _ocdpo.EVAL_EXAMPLES
+ALL_TARGETS = _ocdpo.ALL_TARGETS
 
 RESULTS_DIR = Path("./results")
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -576,7 +580,7 @@ def main():
     args = parser.parse_args()
 
     print("=" * 70)
-    print("Step 12: Scaling Validation - Qwen2.5-14B (FIXED: correct harm sign)")
+    print("Scaling Validation - Qwen2.5-14B")
     print("=" * 70)
     print(f"Base model:     {BASE_MODEL}")
     print(f"IT model:       {IT_MODEL}")
@@ -633,7 +637,7 @@ def main():
 
     # Final summary
     print(f"\n{'=' * 70}")
-    print(f"FINAL SUMMARY - Step 12 Scaling Validation (14B) [FIXED v2]")
+    print(f"FINAL SUMMARY - Scaling Validation (14B)")
     print(f"{'=' * 70}")
     print(f"Total time: {total_time / 60:.1f} minutes")
     print(f"\nAttribution ({args.num_examples} examples):")

@@ -1,5 +1,5 @@
 """
-Step 20: OC-DPO Safety Evaluation
+OC-DPO Safety Evaluation
 
 Train OC-DPO models (exclude V/O/down) then evaluate safety on 250 harmful prompts.
 Also runs standard DPO for comparison. This addresses reviewer concern W4:
@@ -66,10 +66,14 @@ TRAIN_DATA = [
 # ============================================================
 # Safety prompts (subset from 04_safety — 250 harmful)
 # ============================================================
-from 04_safety import (
-    ALL_HARMFUL_CATEGORIES, BORDERLINE, BENIGN, TOTAL_HARMFUL,
-    detect_refusal, generate_response
-)
+import importlib
+_safety = importlib.import_module("04_safety")
+ALL_HARMFUL_CATEGORIES = _safety.ALL_HARMFUL_CATEGORIES
+BORDERLINE = _safety.BORDERLINE
+BENIGN = _safety.BENIGN
+TOTAL_HARMFUL = _safety.TOTAL_HARMFUL
+detect_refusal = _safety.detect_refusal
+generate_response = _safety.generate_response
 
 # ============================================================
 # DPO Training
@@ -260,7 +264,7 @@ def run_model(model_key, device="cuda:0"):
 
 def main():
     device = sys.argv[1] if len(sys.argv) > 1 else "cuda:0"
-    print(f"Step 20: OC-DPO Safety Evaluation")
+    print(f"OC-DPO Safety Evaluation")
     print(f"Device: {device}")
 
     all_results = {}

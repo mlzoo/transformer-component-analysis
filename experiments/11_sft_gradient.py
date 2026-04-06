@@ -1,5 +1,5 @@
 """
-Step 30: SFT Gradient Verification
+SFT Gradient Verification
 
 Verify that V/O vs Q/K gradient asymmetry holds under SFT (cross-entropy) loss,
 not just DPO. This confirms the softmax Jacobian attenuation is loss-independent.

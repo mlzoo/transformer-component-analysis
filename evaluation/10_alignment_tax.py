@@ -1,5 +1,5 @@
 """
-Step 25: Recompute alignment tax with full 209 agent examples.
+Recompute alignment tax with full 209 agent examples.
 Previous version used only 50 examples. This gives more accurate tax estimates.
 Runs 3 models in parallel on separate GPUs via CLI: python 10_alignment_tax.py <model_key> <device>
 """
@@ -11,7 +11,9 @@ from pathlib import Path
 RESULTS_DIR = Path("./results")
 sys.path.insert(0, "./experiments")
 from agent_examples_200 import AGENT_EXAMPLES_200 as AGENT_EXAMPLES
-from 01_benchmarks_utils import compute_agent_loss
+import importlib
+_utils = importlib.import_module("01_benchmarks_utils")
+compute_agent_loss = _utils.compute_agent_loss
 
 MODEL_CONFIGS = {
     "qwen2.5-7b": {
@@ -39,7 +41,7 @@ def main():
 
     cfg = MODEL_CONFIGS[model_key]
     n_examples = len(AGENT_EXAMPLES)
-    print(f"Step 25: Alignment Tax (209 examples)")
+    print(f"Alignment Tax (209 examples)")
     print(f"Model: {model_key}, Device: {device}, Examples: {n_examples}")
 
     from transformers import AutoModelForCausalLM, AutoTokenizer

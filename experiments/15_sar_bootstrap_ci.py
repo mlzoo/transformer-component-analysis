@@ -1,5 +1,5 @@
 """
-Step 35: Bootstrap confidence intervals for SAR and attribution statistics.
+Bootstrap confidence intervals for SAR and attribution statistics.
 
 Computes bootstrap CIs for:
   1. V/O vs Q/K attribution ratio (resampling components within each group)

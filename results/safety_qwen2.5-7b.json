@@ -3,7 +3,7 @@
   "model": "qwen2.5-7b",
   "n_harmful": 250,
   "n_harmful_advbench": 200,
-  "n_harmful_step10": 50,
+  "n_harmful_custom": 50,
   "n_borderline": 10,
   "n_benign": 10,
   "categories": [

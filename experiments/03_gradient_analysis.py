@@ -1,5 +1,5 @@
 """
-Step 3: RLHF Gradient Magnitude Analysis
+RLHF Gradient Magnitude Analysis
 
 Measure per-component DPO gradient norms efficiently:
 - Freeze all layers except one at a time
