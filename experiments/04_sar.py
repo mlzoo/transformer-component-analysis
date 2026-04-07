@@ -149,7 +149,7 @@ def run_sar_eval(base_dir, it_dir, device="cuda:0", model_name="unknown"):
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-    examples = AGENT_EXAMPLES[:50]
+    examples = AGENT_EXAMPLES  # 49 base examples
 
     strategies = ["topk", "heuristic", "vo_only", "mlp_only", "qk_only", "random", "magnitude"]
     k_values = [3, 5, 8, 10]

@@ -154,7 +154,7 @@ def run_attribution(base_dir, it_dir, device="cuda:0", model_name="unknown"):
             for key in sf.keys():
                 it_index[key] = f
 
-    examples = AGENT_EXAMPLES  # All 50
+    examples = AGENT_EXAMPLES  # All 49 base examples
 
     print(f"Measuring baseline IT loss on {len(examples)} examples...")
     baseline_loss = compute_loss(model, tokenizer, examples, device)

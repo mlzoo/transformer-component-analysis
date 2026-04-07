@@ -149,7 +149,7 @@ def apply_sar(model, base_dir, attribution_scores, k_pct=5):
 
 def evaluate_model(model, tokenizer, device, label):
     print(f"\n  [{label}] Evaluating...")
-    agent_loss = compute_agent_loss(model, tokenizer, AGENT_EXAMPLES[:50], device)
+    agent_loss = compute_agent_loss(model, tokenizer, AGENT_EXAMPLES, device)  # 49 base examples
     mc_acc = compute_mc_accuracy(model, tokenizer, MMLU_EXAMPLES, device)
     ppl = compute_perplexity(model, tokenizer, device)
     print(f"  [{label}] Agent loss: {agent_loss:.4f}, MC accuracy: {mc_acc:.2%}, Perplexity: {ppl:.2f}")
