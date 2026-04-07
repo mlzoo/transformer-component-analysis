@@ -1,5 +1,5 @@
 {
-  "analysis": "Attribution via activation patching (float16, 50 examples)",
+  "analysis": "Attribution via activation patching (float16, 49 examples)",
   "model_pair": "mistral-7b",
   "num_examples": 49,
   "baseline_loss": 0.7806749713687022,

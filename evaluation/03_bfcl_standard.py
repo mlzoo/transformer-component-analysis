@@ -24,7 +24,6 @@ import torch
 import time
 import traceback
 from pathlib import Path
-from collections import defaultdict
 
 # ---------------------------------------------------------------------------
 # Paths

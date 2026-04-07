@@ -58,7 +58,7 @@ Download the following HuggingFace model pairs to `./models/`:
 │   ├── 11_safety_llm_judge.py   # LLM judge safety evaluation (Appendix A)
 │   └── 12_ocdpo_safety_judge.py # OC-DPO safety with LLM judge (Appendix E)
 ├── figures/                  # Figure generation scripts
-│   ├── generate_figures.py       # Main paper figures (Figs 1-2)
+│   ├── generate_figures.py       # Main paper figures (Figs 2-3)
 │   └── generate_fig_overview.py  # Overview figure (Fig 0)
 ├── results/                  # Pre-computed result JSON files
 └── requirements.txt
@@ -111,7 +111,7 @@ python experiments/19_gradient_72b.py           # 72B gradient analysis
 
 ### 7. Figures
 ```bash
-python figures/generate_figures.py              # Figs 1-2
+python figures/generate_figures.py              # Figs 2-3
 python figures/generate_fig_overview.py         # Fig 0 (overview)
 ```
 

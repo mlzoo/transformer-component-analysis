@@ -691,7 +691,7 @@ def print_summary(model_key, results):
 
 def save_results(model_key, results):
     """Save results to JSON, stripping verbose details for the saved copy."""
-    save_results = {}
+    output = {}
     for variant, r in results.items():
         save_r = dict(r)
         # Strip individual prompt details to keep file manageable
@@ -711,9 +711,9 @@ def save_results(model_key, results):
             "refusal_rate": r["benign"]["refusal_rate"],
             "n": r["benign"]["n"],
         }
-        save_results[variant] = save_r
+        output[variant] = save_r
 
-    output = {
+    final = {
         "analysis": "Large-scale safety evaluation (250 harmful + 10 borderline + 10 benign)",
         "model": model_key,
         "n_harmful": TOTAL_HARMFUL,
@@ -725,25 +725,25 @@ def save_results(model_key, results):
         "prompts_per_category": {
             cat: len(prompts) for cat, prompts in ALL_HARMFUL_CATEGORIES.items()
         },
-        "results": save_results,
+        "results": output,
     }
 
     # Delta summary
     if "it" in results and "sar_5pct" in results:
         it_rate = results["it"]["overall_harmful_refusal"]
         sar_rate = results["sar_5pct"]["overall_harmful_refusal"]
-        output["delta_it_to_sar5"] = round(sar_rate - it_rate, 4)
-        output["delta_per_category"] = {}
+        final["delta_it_to_sar5"] = round(sar_rate - it_rate, 4)
+        final["delta_per_category"] = {}
         for cat in ALL_HARMFUL_CATEGORIES:
             it_cat = results["it"]["categories"][cat]["refusal_rate"]
             sar_cat = results["sar_5pct"]["categories"][cat]["refusal_rate"]
-            output["delta_per_category"][cat] = round(sar_cat - it_cat, 4)
+            final["delta_per_category"][cat] = round(sar_cat - it_cat, 4)
 
     out_path = RESULTS_DIR / f"safety_v2_{model_key}.json"
     with open(out_path, "w") as f:
-        json.dump(output, f, indent=2, default=str)
+        json.dump(final, f, indent=2, default=str)
     print(f"\nSaved to {out_path}")
-    return output
+    return final
 
 
 def log_to_wandb(all_model_results):

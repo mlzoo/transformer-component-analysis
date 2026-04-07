@@ -135,10 +135,7 @@ def run_sar_eval(base_dir, it_dir, device="cuda:0", model_name="unknown"):
 
     # Find attribution results
     safe_name = model_name.replace("/", "_").replace(" ", "_").lower()
-    # Try expanded first, then fp16
     attr_path = RESULTS_DIR / f"attribution_{safe_name}.json"
-    if not attr_path.exists():
-        attr_path = RESULTS_DIR / f"attribution_{safe_name}.json"
     if not attr_path.exists():
         print(f"ERROR: No attribution results for {model_name}")
         return

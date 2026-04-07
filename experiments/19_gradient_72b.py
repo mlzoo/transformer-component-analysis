@@ -258,7 +258,7 @@ def analyze_results(grad_norms, num_layers, loss_type, model_name):
     if len(vo_all) > 0 and len(qk_all) > 0:
         stat, pval = mannwhitneyu(vo_all, qk_all, alternative="greater")
         n1, n2 = len(vo_all), len(qk_all)
-        r = 1 - (2 * stat) / (n1 * n2)
+        r = 2 * stat / (n1 * n2) - 1  # rank-biserial: positive = V/O > Q/K
         print(f"\n  Mann-Whitney U (V/O > Q/K): p={pval:.2e}, r={r:.3f} (n_vo={n1}, n_qk={n2})")
 
     # O vs Q

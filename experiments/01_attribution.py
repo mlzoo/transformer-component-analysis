@@ -218,7 +218,7 @@ def run_attribution(base_dir, it_dir, device="cuda:0", model_name="unknown"):
         by_type[r["component_type"]].append(r)
 
     print(f"\n{'='*80}")
-    print(f"ATTRIBUTION RESULTS ({model_name}) — 50 examples")
+    print(f"ATTRIBUTION RESULTS ({model_name}) — {len(examples)} examples")
     print(f"Baseline loss: {baseline_loss:.4f}")
     print(f"{'='*80}")
 

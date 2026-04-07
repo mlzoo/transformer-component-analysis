@@ -235,7 +235,7 @@ def run_analysis(model_name, device):
         stat, pval = mannwhitneyu(vo_scores, qk_scores, alternative='greater')
         ratio = np.mean(vo_scores) / np.mean(qk_scores) if np.mean(qk_scores) > 0 else float('inf')
         n1, n2 = len(vo_scores), len(qk_scores)
-        r = 1 - (2 * stat) / (n1 * n2)
+        r = 2 * stat / (n1 * n2) - 1  # rank-biserial: positive = V/O > Q/K
     else:
         pval, ratio, r = 1.0, 0.0, 0.0
 

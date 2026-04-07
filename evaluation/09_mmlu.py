@@ -205,7 +205,7 @@ def run_model(model_key, questions, device="cuda:0"):
         it_dir, torch_dtype=torch.float16, device_map=device, trust_remote_code=True
     )
     acc, correct, total, elapsed = compute_mc_accuracy(
-        model, tokenizer, questions, device, f"{model_key}/IT"
+        model, it_tokenizer, questions, device, f"{model_key}/IT"
     )
     results["it"] = {"accuracy": round(acc, 4), "correct": correct, "total": total, "time_s": round(elapsed, 1)}
     del model
@@ -220,7 +220,7 @@ def run_model(model_key, questions, device="cuda:0"):
         )
         model = apply_sar(model, base_dir, attribution_scores, k_pct=5)
         acc, correct, total, elapsed = compute_mc_accuracy(
-            model, tokenizer, questions, device, f"{model_key}/SAR-5%"
+            model, it_tokenizer, questions, device, f"{model_key}/SAR-5%"
         )
         results["sar_5pct"] = {"accuracy": round(acc, 4), "correct": correct, "total": total, "time_s": round(elapsed, 1)}
         del model

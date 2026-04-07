@@ -83,20 +83,6 @@ def extract_code_from_response(response, prompt):
         if match:
             text = match.group(1)
 
-    # If the extracted text contains the full function signature from the prompt,
-    # we only want the body part (after the signature)
-    # Get the last line of the prompt (typically the docstring closing or signature)
-    prompt_lines = prompt.rstrip().split("\n")
-    # Check if the response re-includes the function def
-    if text.lstrip().startswith("def "):
-        # The model regenerated the whole function; extract just the body
-        # Find where the docstring ends (if any) and take from there
-        # Actually, for HumanEval we want prompt + completion, so if the model
-        # regenerated the whole function, we need to extract just the part after prompt
-        # Try to find the prompt content in the response
-        # Simplest: just use what's after the prompt's last meaningful line
-        pass
-
     # Apply stop sequences to truncate
     for stop in STOP_SEQUENCES:
         idx = text.find(stop)

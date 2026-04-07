@@ -1,1 +1,10 @@
 __pycache__/
+*.pyc
+*.pyo
+wandb/
+*.pt
+*.bin
+*.safetensors
+.DS_Store
+*.log
+.env

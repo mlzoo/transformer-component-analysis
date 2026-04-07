@@ -12,7 +12,6 @@ Compare: Base, IT, SAR, and verify SAR improves agent without hurting general.
 import sys
 import json
 import torch
-import numpy as np
 from pathlib import Path
 
 RESULTS_DIR = Path("./results")

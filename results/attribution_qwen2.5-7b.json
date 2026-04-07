@@ -1,5 +1,5 @@
 {
-  "analysis": "Attribution via activation patching (float16, 50 examples)",
+  "analysis": "Attribution via activation patching (float16, 49 examples)",
   "model_pair": "qwen2.5-7b",
   "num_examples": 49,
   "baseline_loss": 1.1280969930126206,
