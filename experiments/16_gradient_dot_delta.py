@@ -98,7 +98,7 @@ def run_analysis(model_name, device):
             for key in sf.keys():
                 base_index[key] = f
 
-    examples = AGENT_EXAMPLES  # 49 base examples
+    examples = AGENT_EXAMPLES  # 49 base examples; full 209-set in agent_examples_200.py
 
     num_layers = model.config.num_hidden_layers
     proj_map = {
