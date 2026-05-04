@@ -2,9 +2,11 @@
 SAR (Surgical Alignment Reversal) Implementation
 
 Given attribution results, create a SAR model by selectively rolling back
-the top-k% most harmful components.
+the top-k% most harmful components to their base-model values.
 
-Then evaluate on expanded agent examples to measure improvement.
+Rolling back alignment-correlated components can reduce safety refusal rates.
+Values of k above ~5% are progressively riskier for safety. Users must re-run
+safety evaluation (see evaluation/11_safety_llm_judge.py) before any deployment.
 """
 
 import sys
@@ -14,9 +16,11 @@ import numpy as np
 from pathlib import Path
 from collections import defaultdict
 from safetensors import safe_open
-from safetensors.torch import save_file
+
+sys.path.insert(0, str(Path(__file__).parent))
 
 RESULTS_DIR = Path("./results")
+RESULTS_DIR.mkdir(exist_ok=True)
 
 
 def compute_loss(model, tokenizer, examples, device):
@@ -44,12 +48,24 @@ def apply_sar(model, base_dir, it_dir, attribution_path, k_percent=5.0, strategy
     """
     Apply SAR by modifying model weights in-place.
 
+    Args:
+        model: The IT model whose weights will be selectively rolled back to base values.
+        base_dir: Path to the base (pre-instruction-tuning) model weights.
+        it_dir: Path to the IT model — used upstream to load the model passed here;
+                not re-read inside this function, but kept as a parameter for
+                documentation/symmetry with run_sar_eval's signature.
+        attribution_path: Path to the attribution JSON produced by 01_attribution.py.
+        k_percent: Budget for topk/random/magnitude and heuristic pool strategies.
+        strategy: Which component selection strategy to use (see below).
+
     Strategies:
     - topk: Roll back top k% most harmful components
-    - heuristic: Roll back W_down + W_V + W_O at mid layers
-    - vo_only: Roll back W_V + W_O only
-    - mlp_only: Roll back W_down only
+    - heuristic: Roll back top k% of W_down + W_V + W_O at mid layers
+    - vo_only: Roll back top k% of W_V + W_O (all layers)
+    - mlp_only: Roll back top k% of W_down (all layers)
+    - qk_only: Roll back top k% of W_Q + W_K at mid layers (control/ablation)
     - random: Roll back random k%
+    - magnitude: Roll back top k% by weight-delta magnitude
     """
     # Load attribution
     with open(attribution_path) as f:
@@ -65,24 +81,34 @@ def apply_sar(model, base_dir, it_dir, attribution_path, k_percent=5.0, strategy
         k = max(1, int(len(all_components) * k_percent / 100))
         selected = all_components[:k]
     elif strategy == "heuristic":
-        selected = [c for c in all_components
-                    if c["component_type"] in ("W_V", "W_O", "W_down")
-                    and mid_start <= c["layer"] < mid_end]
+        # Pool: output-pathway components in mid layers, already sorted by harm score.
+        # Apply k_percent budget within this pool so the strategy is comparable to topk.
+        pool = [c for c in all_components
+                if c["component_type"] in ("W_V", "W_O", "W_down")
+                and mid_start <= c["layer"] < mid_end]
+        k = max(1, int(len(pool) * k_percent / 100))
+        selected = pool[:k]
     elif strategy == "vo_only":
-        selected = [c for c in all_components
-                    if c["component_type"] in ("W_V", "W_O")
-                    and mid_start <= c["layer"] < mid_end]
+        pool = [c for c in all_components
+                if c["component_type"] in ("W_V", "W_O")]
+        k = max(1, int(len(pool) * k_percent / 100))
+        selected = pool[:k]
     elif strategy == "mlp_only":
-        selected = [c for c in all_components
-                    if c["component_type"] == "W_down"
-                    and mid_start <= c["layer"] < mid_end]
+        pool = [c for c in all_components
+                if c["component_type"] == "W_down"]
+        k = max(1, int(len(pool) * k_percent / 100))
+        selected = pool[:k]
     elif strategy == "qk_only":
-        selected = [c for c in all_components
-                    if c["component_type"] in ("W_Q", "W_K")
-                    and mid_start <= c["layer"] < mid_end]
+        # Control ablation: Q/K projections should be low-harm per the paper's hypothesis.
+        pool = [c for c in all_components
+                if c["component_type"] in ("W_Q", "W_K")
+                and mid_start <= c["layer"] < mid_end]
+        k = max(1, int(len(pool) * k_percent / 100))
+        selected = pool[:k]
     elif strategy == "random":
         k = max(1, int(len(all_components) * k_percent / 100))
-        indices = np.random.choice(len(all_components), k, replace=False)
+        rng = np.random.RandomState(42)
+        indices = rng.choice(len(all_components), k, replace=False)
         selected = [all_components[i] for i in indices]
     elif strategy == "magnitude":
         # Sort by delta norm instead of harm score
@@ -124,10 +150,8 @@ def apply_sar(model, base_dir, it_dir, attribution_path, k_percent=5.0, strategy
     return rolled_back, selected
 
 
-# Import agent examples from expanded set
-import importlib
-_attribution = importlib.import_module("01_attribution")
-AGENT_EXAMPLES = _attribution.AGENT_EXAMPLES
+from agent_examples_200 import BASE_EXAMPLES, EXTRA_EXAMPLES
+AGENT_EXAMPLES = BASE_EXAMPLES + EXTRA_EXAMPLES
 
 
 def run_sar_eval(base_dir, it_dir, device="cuda:0", model_name="unknown"):
@@ -146,7 +170,7 @@ def run_sar_eval(base_dir, it_dir, device="cuda:0", model_name="unknown"):
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-    examples = AGENT_EXAMPLES  # 49 base examples; full 209-set in agent_examples_200.py
+    examples = AGENT_EXAMPLES
 
     strategies = ["topk", "heuristic", "vo_only", "mlp_only", "qk_only", "random", "magnitude"]
     k_values = [3, 5, 8, 10]
@@ -196,7 +220,10 @@ def run_sar_eval(base_dir, it_dir, device="cuda:0", model_name="unknown"):
 
                 sar_loss = compute_loss(model, tokenizer, examples, device)
                 recovery = it_loss - sar_loss
-                pct = recovery / alignment_tax * 100 if alignment_tax != 0 else 0
+                # alignment_tax <= 0 means IT is already better than base on these examples,
+                # so there is no "tax" to recover.  Computing a percentage is misleading
+                # (negative tax inverts the sign) — store None and note it in the summary.
+                pct = (recovery / alignment_tax * 100) if alignment_tax > 0 else None
 
                 # Composition of rolled-back components
                 type_counts = defaultdict(int)
@@ -206,11 +233,12 @@ def run_sar_eval(base_dir, it_dir, device="cuda:0", model_name="unknown"):
                 results[config_name] = {
                     "loss": float(sar_loss),
                     "recovery": float(recovery),
-                    "pct_tax_recovered": float(pct),
+                    "pct_tax_recovered": float(pct) if pct is not None else None,
                     "n_components": n_rolled,
                     "type_composition": dict(type_counts),
                 }
-                print(f"  Loss: {sar_loss:.4f}, Recovery: {recovery:+.4f} ({pct:.1f}%)")
+                pct_str = f"{pct:.1f}%" if pct is not None else "N/A (no alignment tax)"
+                print(f"  Loss: {sar_loss:.4f}, Recovery: {recovery:+.4f} ({pct_str})")
 
                 del model; torch.cuda.empty_cache()
         else:
@@ -227,7 +255,10 @@ def run_sar_eval(base_dir, it_dir, device="cuda:0", model_name="unknown"):
 
             sar_loss = compute_loss(model, tokenizer, examples, device)
             recovery = it_loss - sar_loss
-            pct = recovery / alignment_tax * 100 if alignment_tax != 0 else 0
+            # alignment_tax <= 0 means IT is already better than base on these examples,
+            # so there is no "tax" to recover.  Computing a percentage is misleading
+            # (negative tax inverts the sign) — store None and note it in the summary.
+            pct = (recovery / alignment_tax * 100) if alignment_tax > 0 else None
 
             type_counts = defaultdict(int)
             for c in selected:
@@ -236,11 +267,12 @@ def run_sar_eval(base_dir, it_dir, device="cuda:0", model_name="unknown"):
             results[config_name] = {
                 "loss": float(sar_loss),
                 "recovery": float(recovery),
-                "pct_tax_recovered": float(pct),
+                "pct_tax_recovered": float(pct) if pct is not None else None,
                 "n_components": n_rolled,
                 "type_composition": dict(type_counts),
             }
-            print(f"  Loss: {sar_loss:.4f}, Recovery: {recovery:+.4f} ({pct:.1f}%)")
+            pct_str = f"{pct:.1f}%" if pct is not None else "N/A (no alignment tax)"
+            print(f"  Loss: {sar_loss:.4f}, Recovery: {recovery:+.4f} ({pct_str})")
 
             del model; torch.cuda.empty_cache()
 
@@ -252,7 +284,9 @@ def run_sar_eval(base_dir, it_dir, device="cuda:0", model_name="unknown"):
 
     for name, r in results.items():
         if isinstance(r, dict):
-            print(f"  {name:25s}: loss={r['loss']:.4f}, recovery={r['recovery']:+.4f} ({r['pct_tax_recovered']:.1f}%)")
+            pct_val = r["pct_tax_recovered"]
+            pct_str = f"{pct_val:.1f}%" if pct_val is not None else "N/A (no alignment tax)"
+            print(f"  {name:25s}: loss={r['loss']:.4f}, recovery={r['recovery']:+.4f} ({pct_str})")
 
     # Save
     output = {

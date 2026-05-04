@@ -1,19 +1,19 @@
 """
 Standard BFCL Evaluation
 
-Evaluates Base, IT, and SAR-5% models on the REAL Berkeley Function Calling
+Evaluates Base, IT, and SAR-5% models on the Berkeley Function Calling
 Leaderboard dataset (gorilla-llm/Berkeley-Function-Calling-Leaderboard).
 
-Categories evaluated:
-  - simple:    Single function call with correct args (400 examples)
-  - multiple:  Select correct function from several options (200 examples)
-  - parallel:  Call multiple functions simultaneously (200 examples)
+Categories evaluated (max 100 per category, 318 total):
+  - simple:    Single function call with correct args
+  - multiple:  Select correct function from several options
+  - parallel:  Call multiple functions simultaneously
   - relevance: Detect when no suitable function is available (18 examples)
 
 Metric: AST accuracy (correct function name AND correct arguments).
 
 Usage:
-    python bfcl_standard.py cuda:2
+    python 03_bfcl_standard.py cuda:0
 """
 
 import sys
@@ -26,15 +26,17 @@ import traceback
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
 RESULTS_DIR = Path("./results")
+RESULTS_DIR.mkdir(exist_ok=True)
 BFCL_SNAPSHOT = Path.home() / ".cache/huggingface/hub/datasets--gorilla-llm--Berkeley-Function-Calling-Leaderboard/snapshots"
 
 MODEL_CONFIGS = {
     "qwen2.5-7b": {
         "base": "./models/Qwen2.5-7B",
-        "it": "Qwen/Qwen2.5-7B-Instruct",
+        "it": "./models/Qwen2.5-7B-Instruct",
         "attr": "attribution_qwen2.5-7b.json",
     },
     "llama-3.1-8b": {
@@ -46,6 +48,11 @@ MODEL_CONFIGS = {
         "base": "./models/Mistral-7B-v0.3",
         "it": "./models/Mistral-7B-Instruct-v0.3",
         "attr": "attribution_mistral-7b.json",
+    },
+    "yi-1.5-9b": {
+        "base": "./models/Yi-1.5-9B",
+        "it": "./models/Yi-1.5-9B-Chat",
+        "attr": "attribution_yi-1.5-9b.json",
     },
 }
 
@@ -275,7 +282,7 @@ def parse_args_string(args_str):
         maybe_dict = ast.literal_eval("{" + args_str + "}")
         if isinstance(maybe_dict, dict):
             return maybe_dict
-    except:
+    except (ValueError, SyntaxError):
         pass
 
     # Try keyword argument parsing
@@ -307,8 +314,8 @@ def parse_args_string(args_str):
         # Try to convert to native types
         try:
             value = ast.literal_eval(value)
-        except:
-            pass  # keep as string
+        except (ValueError, SyntaxError):
+            pass
 
         args[key] = value
 
@@ -714,20 +721,34 @@ def main():
     print(f"Device: {device}")
     print(f"=" * 70)
 
-    # W&B setup
-    import wandb
-    wandb.login()  # uses WANDB_API_KEY env var
-    run = wandb.init(project="anonymous-submission", name="bfcl-standard")
+    # W&B setup (set WANDB_MODE=disabled to skip logging)
+    import os
+    try:
+        import wandb
+        HAS_WANDB = True
+    except ImportError:
+        wandb = None
+        HAS_WANDB = False
+    if HAS_WANDB:
+        wandb_mode = os.environ.get("WANDB_MODE", "disabled")
+        if wandb_mode != "disabled":
+            wandb.login()
+        run = wandb.init(project="anonymous-submission", name="bfcl-standard",
+                         mode=wandb_mode)
 
     # Load BFCL data
     print("\nLoading BFCL dataset...")
     bfcl_data, is_synthetic = load_all_bfcl_data()
     if bfcl_data is None:
+        print("\nERROR: BFCL dataset not available. Please download it first:")
+        print("  python -c \"from datasets import load_dataset; load_dataset('gorilla-llm/Berkeley-Function-Calling-Leaderboard')\"")
+        print("\nFalling back to synthetic data for demonstration only.")
+        print("NOTE: Results from synthetic data are NOT comparable to paper numbers.\n")
         bfcl_data = build_synthetic_bfcl()
         is_synthetic = True
 
     total_examples = sum(len(v) for v in bfcl_data.values())
-    print(f"Total examples: {total_examples} ({'synthetic' if is_synthetic else 'real BFCL'})")
+    print(f"Total examples: {total_examples} ({'SYNTHETIC - not paper results' if is_synthetic else 'real BFCL'})")
 
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
@@ -763,9 +784,10 @@ def main():
             family_results["base"] = summary
 
             # Log to W&B
-            for cat, metrics in summary.items():
-                if isinstance(metrics, dict) and "ast_accuracy" in metrics:
-                    wandb.log({f"bfcl/{family_name}/base/{cat}_ast": metrics["ast_accuracy"]})
+            if HAS_WANDB:
+                for cat, metrics in summary.items():
+                    if isinstance(metrics, dict) and "ast_accuracy" in metrics:
+                        wandb.log({f"bfcl/{family_name}/base/{cat}_ast": metrics["ast_accuracy"]})
 
             del model
             torch.cuda.empty_cache()
@@ -786,9 +808,10 @@ def main():
             summary, details = evaluate_model_variant(model, it_tokenizer, device, bfcl_data, f"{family_name}/IT")
             family_results["it"] = summary
 
-            for cat, metrics in summary.items():
-                if isinstance(metrics, dict) and "ast_accuracy" in metrics:
-                    wandb.log({f"bfcl/{family_name}/it/{cat}_ast": metrics["ast_accuracy"]})
+            if HAS_WANDB:
+                for cat, metrics in summary.items():
+                    if isinstance(metrics, dict) and "ast_accuracy" in metrics:
+                        wandb.log({f"bfcl/{family_name}/it/{cat}_ast": metrics["ast_accuracy"]})
 
             del model
             torch.cuda.empty_cache()
@@ -819,9 +842,10 @@ def main():
                 )
                 family_results["sar_5pct"] = summary
 
-                for cat, metrics in summary.items():
-                    if isinstance(metrics, dict) and "ast_accuracy" in metrics:
-                        wandb.log({f"bfcl/{family_name}/sar5/{cat}_ast": metrics["ast_accuracy"]})
+                if HAS_WANDB:
+                    for cat, metrics in summary.items():
+                        if isinstance(metrics, dict) and "ast_accuracy" in metrics:
+                            wandb.log({f"bfcl/{family_name}/sar5/{cat}_ast": metrics["ast_accuracy"]})
 
                 del model
                 torch.cuda.empty_cache()
@@ -880,16 +904,17 @@ def main():
                 print(f"           SAR-5%={sar_ast:.1%}  Recovery={recovery:+.1%}")
 
             tax_summary[family_name] = tax_entry
-            wandb.log({
-                f"bfcl_tax/{family_name}/base_ast": base_ast,
-                f"bfcl_tax/{family_name}/it_ast": it_ast,
-                f"bfcl_tax/{family_name}/tax": tax,
-            })
-            if "sar5_ast" in tax_entry:
+            if HAS_WANDB:
                 wandb.log({
-                    f"bfcl_tax/{family_name}/sar5_ast": tax_entry["sar5_ast"],
-                    f"bfcl_tax/{family_name}/sar5_recovery": tax_entry["sar5_recovery"],
+                    f"bfcl_tax/{family_name}/base_ast": base_ast,
+                    f"bfcl_tax/{family_name}/it_ast": it_ast,
+                    f"bfcl_tax/{family_name}/tax": tax,
                 })
+                if "sar5_ast" in tax_entry:
+                    wandb.log({
+                        f"bfcl_tax/{family_name}/sar5_ast": tax_entry["sar5_ast"],
+                        f"bfcl_tax/{family_name}/sar5_recovery": tax_entry["sar5_recovery"],
+                    })
 
     # Log summary table to W&B
     table_data = []
@@ -906,7 +931,7 @@ def main():
                     row[f"{cat}_ast"] = family_results[variant][cat]["ast_accuracy"]
             table_data.append(row)
 
-    if table_data:
+    if table_data and HAS_WANDB:
         wandb.log({"bfcl_summary": wandb.Table(
             columns=list(table_data[0].keys()),
             data=[list(r.values()) for r in table_data]
@@ -927,7 +952,8 @@ def main():
         json.dump(output, f, indent=2, default=str)
     print(f"\nResults saved to {out_path}")
 
-    wandb.finish()
+    if HAS_WANDB:
+        wandb.finish()
     print("\nDone.")
 
 

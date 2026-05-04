@@ -1,0 +1,30 @@
+{
+  "experiment": "cross_dataset_transfer",
+  "description": "BFCL-attributed SAR evaluated on probe set (Section 5)",
+  "models": {
+    "qwen2.5-7b": {
+      "bfcl_sar_k5_recovery": 0.04475547495671517,
+      "bfcl_sar_k5_pct": 47.01263284806583,
+      "random_20seed_mean": 0.01407663565510755,
+      "random_20seed_std": 0.0038526155358945134,
+      "sar_random_ratio": 3.179415597112236,
+      "n_seeds": 20
+    },
+    "llama-3.1-8b": {
+      "bfcl_sar_k5_recovery": 0.015551674107142865,
+      "bfcl_sar_k5_pct": -58.40220962982832,
+      "random_20seed_mean": 0.004934506408814843,
+      "random_20seed_std": 0.0045898849764349475,
+      "sar_random_ratio": 3.1516169640314695,
+      "n_seeds": 20
+    },
+    "mistral-7b": {
+      "bfcl_sar_k5_recovery": 0.0180706180652489,
+      "bfcl_sar_k5_pct": -468.40619046451206,
+      "random_20seed_mean": 0.007699175284906656,
+      "random_20seed_std": 0.007909498646998447,
+      "sar_random_ratio": 2.3470849015055233,
+      "n_seeds": 20
+    }
+  }
+}

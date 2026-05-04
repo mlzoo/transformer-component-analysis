@@ -1,0 +1,77 @@
+{
+  "analysis": "SAR evaluation",
+  "model_pair": "llama-3.1-8b",
+  "base_loss": 0.8386136160714286,
+  "it_loss": 0.8119850446428571,
+  "alignment_tax": -0.026628571428571446,
+  "results": {
+    "IT_baseline": 0.8119850446428571,
+    "base_model": 0.8386136160714286,
+    "alignment_tax": -0.026628571428571446,
+    "topk_k3": {
+      "loss": 0.7946946428571429,
+      "recovery": 0.017290401785714282,
+      "pct_tax_recovered": null,
+      "n_components": 6,
+      "type_composition": {
+        "W_down": 3,
+        "W_gate": 2,
+        "W_Q": 1
+      }
+    },
+    "topk_k5": {
+      "loss": 0.7862549107142857,
+      "recovery": 0.025730133928571486,
+      "pct_tax_recovered": null,
+      "n_components": 11,
+      "type_composition": {
+        "W_down": 5,
+        "W_gate": 2,
+        "W_Q": 1,
+        "W_O": 1,
+        "W_up": 1,
+        "W_V": 1
+      }
+    },
+    "topk_k8": {
+      "loss": 0.78120234375,
+      "recovery": 0.030782700892857173,
+      "pct_tax_recovered": null,
+      "n_components": 17,
+      "type_composition": {
+        "W_down": 7,
+        "W_gate": 2,
+        "W_Q": 1,
+        "W_O": 1,
+        "W_up": 5,
+        "W_V": 1
+      }
+    },
+    "topk_k10": {
+      "loss": 0.7763936383928571,
+      "recovery": 0.03559140625000001,
+      "pct_tax_recovered": null,
+      "n_components": 22,
+      "type_composition": {
+        "W_down": 8,
+        "W_gate": 2,
+        "W_Q": 1,
+        "W_O": 4,
+        "W_up": 5,
+        "W_V": 2
+      }
+    },
+    "heuristic": {
+      "loss": 0.7987505580357143,
+      "recovery": 0.013234486607142881,
+      "pct_tax_recovered": null,
+      "n_components": 33
+    },
+    "random_k5": {
+      "loss": 0.8185115699404761,
+      "recovery": -0.0065265252976190275,
+      "pct_tax_recovered": null,
+      "n_components": 9
+    }
+  }
+}

@@ -2,8 +2,6 @@
 MMLU 1000-Question Evaluation
 
 Evaluate Base/IT/SAR-5% on 1000 MMLU questions using log-prob MC accuracy.
-Addresses reviewer concern: "20 MMLU questions is completely insufficient."
-
 Uses HuggingFace datasets to load MMLU, evaluates via last-token logprob for A/B/C/D.
 """
 
@@ -20,7 +18,7 @@ RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 MODEL_CONFIGS = {
     "qwen2.5-7b": {
         "base": "./models/Qwen2.5-7B",
-        "it": "Qwen/Qwen2.5-7B-Instruct",
+        "it": "./models/Qwen2.5-7B-Instruct",
         "attribution": "attribution_qwen2.5-7b.json",
     },
     "llama-3.1-8b": {
@@ -36,7 +34,7 @@ MODEL_CONFIGS = {
     "yi-1.5-9b": {
         "base": "./models/Yi-1.5-9B",
         "it": "./models/Yi-1.5-9B-Chat",
-        "attribution": "attribution_yi.json",
+        "attribution": "attribution_yi-1.5-9b.json",
     },
 }
 
@@ -115,7 +113,7 @@ def compute_mc_accuracy(model, tokenizer, questions, device, label=""):
                 print(f"    [{label}] {i+1}/{len(questions)}  acc={acc:.1%}  ({elapsed:.0f}s)")
 
     elapsed = time.time() - t0
-    acc = correct / total
+    acc = correct / max(total, 1)
     print(f"    [{label}] Final: {correct}/{total} = {acc:.1%}  ({elapsed:.0f}s)")
     return acc, correct, total, elapsed
 
@@ -275,11 +273,14 @@ def main():
         json.dump(combined, f, indent=2)
     print(f"\nSaved combined to {combined_path}")
 
-    # W&B
+    # W&B (set WANDB_MODE=disabled to skip logging)
     try:
-        import wandb
-        wandb.login()  # uses WANDB_API_KEY env var
-        wandb.init(project="anonymous-submission", name=f"mmlu-{n_questions}")
+        import os, wandb
+        wandb_mode = os.environ.get("WANDB_MODE", "disabled")
+        if wandb_mode != "disabled":
+            wandb.login()
+        wandb.init(project="anonymous-submission", name=f"mmlu-{n_questions}",
+                   mode=wandb_mode)
         for mk, r in all_results.items():
             for variant in ["base", "it", "sar_5pct"]:
                 if variant in r:

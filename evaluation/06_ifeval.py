@@ -16,6 +16,7 @@ Usage:
 """
 
 import sys
+import os
 import json
 import re
 import torch
@@ -24,17 +25,19 @@ import traceback
 from pathlib import Path
 from collections import defaultdict
 
-import wandb
+try:
+    import wandb
+    HAS_WANDB = True
+except ImportError:
+    wandb = None
+    HAS_WANDB = False
 
 # ---------------------------------------------------------------------------
-# W&B setup
-# ---------------------------------------------------------------------------
-wandb.login()  # uses WANDB_API_KEY env var
-
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
 RESULTS_DIR = Path("./results")
+RESULTS_DIR.mkdir(exist_ok=True)
 
 MODEL_CONFIGS = {
     "qwen2.5-7b": {
@@ -55,7 +58,7 @@ MODEL_CONFIGS = {
     "yi-1.5-9b": {
         "base": "./models/Yi-1.5-9B",
         "it": "./models/Yi-1.5-9B-Chat",
-        "attr": "attribution_yi.json",
+        "attr": "attribution_yi-1.5-9b.json",
     },
 }
 
@@ -349,8 +352,7 @@ def check_language_response_language(response, kwargs):
     if language == "english" or language == "en":
         ascii_count = sum(1 for c in response if ord(c) < 128)
         return ascii_count / max(len(response), 1) > 0.8
-    # For other languages, we can't easily verify - mark as passed
-    # (being generous since we can't easily detect all languages)
+    # Non-English language detection is not implemented; default to pass
     return True
 
 
@@ -575,7 +577,7 @@ def load_attribution_scores(attr_filename):
     components = data.get("components", [])
     scores = {}
     for c in components:
-        score = c.get("mean_score", c.get("harm_score", 0))
+        score = c.get("harm_score", c.get("mean_score", 0))
         scores[c["name"]] = score
 
     return scores
@@ -637,19 +639,21 @@ def main():
     models_to_run = {model_filter: MODEL_CONFIGS[model_filter]} if model_filter else MODEL_CONFIGS
 
     # W&B init
-    run = wandb.init(
-        project="anonymous-submission",
-        name=f"ifeval{'-' + model_filter if model_filter else ''}",
-        config={
-            "benchmark": "IFEval",
-            "dataset": "google/IFEval",
-            "num_prompts": 541,
-            "max_new_tokens": 1024,
-            "temperature": 0,
-            "sar_pct": 5,
-            "models": list(models_to_run.keys()),
-        },
-    )
+    if HAS_WANDB:
+        run = wandb.init(
+            project="anonymous-submission",
+            name=f"ifeval{'-' + model_filter if model_filter else ''}",
+            mode=os.environ.get("WANDB_MODE", "disabled"),
+            config={
+                "benchmark": "IFEval",
+                "dataset": "google/IFEval",
+                "num_prompts": 541,
+                "max_new_tokens": 1024,
+                "temperature": 0,
+                "sar_pct": 5,
+                "models": list(models_to_run.keys()),
+            },
+        )
 
     # Load IFEval dataset
     print("\nLoading IFEval dataset...")
@@ -715,10 +719,11 @@ def main():
             )
             family_results["base"] = summary
 
-            wandb.log({
-                f"ifeval/{family_name}/base/prompt_accuracy": summary["prompt_accuracy"],
-                f"ifeval/{family_name}/base/instruction_accuracy": summary["instruction_accuracy"],
-            })
+            if HAS_WANDB:
+                wandb.log({
+                    f"ifeval/{family_name}/base/prompt_accuracy": summary["prompt_accuracy"],
+                    f"ifeval/{family_name}/base/instruction_accuracy": summary["instruction_accuracy"],
+                })
 
             del model, tokenizer
             torch.cuda.empty_cache()
@@ -746,10 +751,11 @@ def main():
             )
             family_results["it"] = summary
 
-            wandb.log({
-                f"ifeval/{family_name}/it/prompt_accuracy": summary["prompt_accuracy"],
-                f"ifeval/{family_name}/it/instruction_accuracy": summary["instruction_accuracy"],
-            })
+            if HAS_WANDB:
+                wandb.log({
+                    f"ifeval/{family_name}/it/prompt_accuracy": summary["prompt_accuracy"],
+                    f"ifeval/{family_name}/it/instruction_accuracy": summary["instruction_accuracy"],
+                })
 
             del model
             torch.cuda.empty_cache()
@@ -787,10 +793,11 @@ def main():
                 )
                 family_results["sar_5pct"] = summary
 
-                wandb.log({
-                    f"ifeval/{family_name}/sar5/prompt_accuracy": summary["prompt_accuracy"],
-                    f"ifeval/{family_name}/sar5/instruction_accuracy": summary["instruction_accuracy"],
-                })
+                if HAS_WANDB:
+                    wandb.log({
+                        f"ifeval/{family_name}/sar5/prompt_accuracy": summary["prompt_accuracy"],
+                        f"ifeval/{family_name}/sar5/instruction_accuracy": summary["instruction_accuracy"],
+                    })
 
                 del model
                 torch.cuda.empty_cache()
@@ -874,7 +881,7 @@ def main():
             wandb_summary[f"recovery/{family_name}/prompt_delta"] = rec_p
             wandb_summary[f"recovery/{family_name}/instruction_delta"] = rec_i
 
-    if wandb_summary:
+    if HAS_WANDB and wandb_summary:
         wandb.log(wandb_summary)
 
     # Save combined results
@@ -887,7 +894,8 @@ def main():
         }, f, indent=2)
     print(f"\nSaved combined results: {combined_path}")
 
-    wandb.finish()
+    if HAS_WANDB:
+        wandb.finish()
     print("\nDone!")
 
 

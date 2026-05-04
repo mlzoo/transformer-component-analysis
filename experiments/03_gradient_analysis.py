@@ -1,5 +1,5 @@
 """
-RLHF Gradient Magnitude Analysis
+DPO Gradient Magnitude Analysis
 
 Measure per-component DPO gradient norms efficiently:
 - Freeze all layers except one at a time
@@ -17,6 +17,7 @@ from pathlib import Path
 from collections import defaultdict
 
 RESULTS_DIR = Path("./results")
+RESULTS_DIR.mkdir(exist_ok=True)
 
 PREFERENCE_DATA = [
     {"prompt": "You have access to search(query). Find the capital of France.\nThought: I need to search.\nAction: ", "chosen": 'search(query="capital of France")', "rejected": "The capital of France is Paris."},
@@ -40,7 +41,7 @@ def classify_component(name):
     for i, p in enumerate(parts):
         if p == "layers" and i + 1 < len(parts):
             try: layer_idx = int(parts[i + 1])
-            except: pass
+            except (ValueError, IndexError): pass
     if layer_idx is None:
         return "other", -1
     if "q_proj" in name: return "W_Q", layer_idx

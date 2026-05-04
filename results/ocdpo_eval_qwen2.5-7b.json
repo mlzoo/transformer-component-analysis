@@ -1,0 +1,91 @@
+{
+  "analysis": "OC-DPO via selective LoRA (mid-layer targeting)",
+  "model": "qwen2.5-7b",
+  "conditions": {
+    "standard": {
+      "condition": "standard",
+      "lora_targets": [
+        "q_proj",
+        "k_proj",
+        "v_proj",
+        "o_proj",
+        "gate_proj",
+        "up_proj",
+        "down_proj"
+      ],
+      "pre_loss": 1.2378268254015585,
+      "post_loss": 1.4526151361052924,
+      "loss_change": 0.21478831070373383,
+      "trainable_params_M": 12.976128
+    },
+    "ocdpo_exclude_output": {
+      "condition": "ocdpo_exclude_output",
+      "lora_targets": [
+        "q_proj",
+        "k_proj",
+        "gate_proj",
+        "up_proj"
+      ],
+      "pre_loss": 1.2378268254015585,
+      "post_loss": 1.2497450656259939,
+      "loss_change": 0.011918240224435328,
+      "trainable_params_M": 8.11008
+    },
+    "exclude_vo": {
+      "condition": "exclude_vo",
+      "lora_targets": [
+        "q_proj",
+        "k_proj",
+        "gate_proj",
+        "up_proj",
+        "down_proj"
+      ],
+      "pre_loss": 1.2378268254015585,
+      "post_loss": 1.3924237122669172,
+      "loss_change": 0.15459688686535866,
+      "trainable_params_M": 11.354112
+    },
+    "exclude_mlp_down": {
+      "condition": "exclude_mlp_down",
+      "lora_targets": [
+        "q_proj",
+        "k_proj",
+        "v_proj",
+        "o_proj",
+        "gate_proj",
+        "up_proj"
+      ],
+      "pre_loss": 1.2378268254015585,
+      "post_loss": 1.3894680692949368,
+      "loss_change": 0.1516412438933783,
+      "trainable_params_M": 9.732096
+    },
+    "exclude_qk": {
+      "condition": "exclude_qk",
+      "lora_targets": [
+        "v_proj",
+        "o_proj",
+        "gate_proj",
+        "up_proj",
+        "down_proj"
+      ],
+      "pre_loss": 1.2378268254015585,
+      "post_loss": 1.4335247481445623,
+      "loss_change": 0.1956979227430038,
+      "trainable_params_M": 11.354112
+    },
+    "exclude_random": {
+      "condition": "exclude_random",
+      "lora_targets": [
+        "k_proj",
+        "v_proj",
+        "o_proj"
+      ],
+      "pre_loss": 1.2378268254015585,
+      "post_loss": 1.1064118246995767,
+      "loss_change": -0.13141500070198187,
+      "trainable_params_M": 2.21184
+    }
+  },
+  "standard_loss_change": 0.21478831070373383
+}

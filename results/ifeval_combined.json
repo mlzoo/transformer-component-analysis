@@ -1,0 +1,102 @@
+{
+  "benchmark": "IFEval",
+  "num_prompts": 541,
+  "results": {
+    "qwen2.5-7b": {
+      "base": {
+        "prompt_accuracy": 0.36414048059149723,
+        "instruction_accuracy": 0.4684796044499382,
+        "prompt_pass": 197,
+        "prompt_total": 541,
+        "instruction_pass": 379,
+        "instruction_total": 809,
+        "instruction_skipped": 25,
+        "elapsed_seconds": 6478.497384309769
+      },
+      "it": {
+        "prompt_accuracy": 0.7005545286506469,
+        "instruction_accuracy": 0.7935723114956736,
+        "prompt_pass": 379,
+        "prompt_total": 541,
+        "instruction_pass": 642,
+        "instruction_total": 809,
+        "instruction_skipped": 25,
+        "elapsed_seconds": 4604.2386639118195
+      },
+      "sar_5pct": {
+        "prompt_accuracy": 0.7042513863216266,
+        "instruction_accuracy": 0.7873918417799752,
+        "prompt_pass": 381,
+        "prompt_total": 541,
+        "instruction_pass": 637,
+        "instruction_total": 809,
+        "instruction_skipped": 25,
+        "elapsed_seconds": 4723.115525960922
+      }
+    },
+    "llama-3.1-8b": {
+      "base": {
+        "prompt_accuracy": 0.19593345656192238,
+        "instruction_accuracy": 0.33498145859085293,
+        "prompt_pass": 106,
+        "prompt_total": 541,
+        "instruction_pass": 271,
+        "instruction_total": 809,
+        "instruction_skipped": 25,
+        "elapsed_seconds": 4082.2122781276703
+      },
+      "it": {
+        "prompt_accuracy": 0.6857670979667283,
+        "instruction_accuracy": 0.7799752781211372,
+        "prompt_pass": 371,
+        "prompt_total": 541,
+        "instruction_pass": 631,
+        "instruction_total": 809,
+        "instruction_skipped": 25,
+        "elapsed_seconds": 6349.2885274887085
+      },
+      "sar_5pct": {
+        "prompt_accuracy": 0.6857670979667283,
+        "instruction_accuracy": 0.7762669962917181,
+        "prompt_pass": 371,
+        "prompt_total": 541,
+        "instruction_pass": 628,
+        "instruction_total": 809,
+        "instruction_skipped": 25,
+        "elapsed_seconds": 6210.330037593842
+      }
+    },
+    "mistral-7b": {
+      "base": {
+        "prompt_accuracy": 0.21626617375231053,
+        "instruction_accuracy": 0.3535228677379481,
+        "prompt_pass": 117,
+        "prompt_total": 541,
+        "instruction_pass": 286,
+        "instruction_total": 809,
+        "instruction_skipped": 25,
+        "elapsed_seconds": 9475.574134349823
+      },
+      "it": {
+        "prompt_accuracy": 0.5064695009242144,
+        "instruction_accuracy": 0.6254635352286774,
+        "prompt_pass": 274,
+        "prompt_total": 541,
+        "instruction_pass": 506,
+        "instruction_total": 809,
+        "instruction_skipped": 25,
+        "elapsed_seconds": 6520.87654209137
+      },
+      "sar_5pct": {
+        "prompt_accuracy": 0.5083179297597042,
+        "instruction_accuracy": 0.6217552533992583,
+        "prompt_pass": 275,
+        "prompt_total": 541,
+        "instruction_pass": 503,
+        "instruction_total": 809,
+        "instruction_skipped": 25,
+        "elapsed_seconds": 6334.570338487625
+      }
+    }
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "analysis": "SAR evaluation (209 examples, float16)",
+  "model": "yi-1.5-9b",
+  "n_examples": 209,
+  "attribution_source": "attribution_yi-1.5-9b.json",
+  "baselines": {
+    "it_loss": 1.0979804733876781,
+    "base_loss": 0.995591224453019,
+    "alignment_tax": 0.10238924893465917
+  },
+  "results": {
+    "topk_k3": {
+      "loss": 1.0515101936164348,
+      "recovery": 0.046470279771243295,
+      "pct_tax_recovered": 45.38589769410147,
+      "n_components": 10,
+      "type_composition": {
+        "W_down": 5,
+        "W_V": 2,
+        "W_O": 1,
+        "W_up": 1,
+        "W_gate": 1
+      }
+    },
+    "topk_k5": {
+      "loss": 1.0342961263462518,
+      "recovery": 0.06368434704142634,
+      "pct_tax_recovered": 62.198275408844154,
+      "n_components": 16,
+      "type_composition": {
+        "W_down": 6,
+        "W_V": 4,
+        "W_O": 2,
+        "W_up": 2,
+        "W_gate": 2
+      }
+    },
+    "topk_k8": {
+      "loss": 1.0267397752448695,
+      "recovery": 0.07124069814280864,
+      "pct_tax_recovered": 69.57829936644197,
+      "n_components": 26,
+      "type_composition": {
+        "W_down": 9,
+        "W_V": 6,
+        "W_O": 3,
+        "W_up": 5,
+        "W_gate": 3
+      }
+    },
+    "topk_k10": {
+      "loss": 1.0217509586743132,
+      "recovery": 0.07622951471336492,
+      "pct_tax_recovered": 74.45070210644052,
+      "n_components": 33,
+      "type_composition": {
+        "W_down": 10,
+        "W_V": 6,
+        "W_O": 4,
+        "W_up": 5,
+        "W_gate": 6,
+        "W_Q": 2
+      }
+    },
+    "heuristic": {
+      "loss": 1.0805124932422405,
+      "recovery": 0.0174679801454376,
+      "pct_tax_recovered": 17.060365543441954,
+      "n_components": 48
+    },
+    "random_k5": {
+      "mean_pct": 15.743769366466319,
+      "std_pct": 15.91009770230844,
+      "all_pct": [
+        24.254216642361296,
+        29.526728251119582,
+        -6.549636794081922
+      ]
+    }
+  },
+  "model_pair": "01-ai/Yi-1.5-9B + Yi-1.5-9B-Chat"
+}

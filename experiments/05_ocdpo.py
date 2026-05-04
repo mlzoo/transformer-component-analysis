@@ -3,9 +3,15 @@ Output-Constrained DPO (OC-DPO) via Selective LoRA
 
 Standard approach: apply LoRA to all attention + MLP projections during DPO.
 OC-DPO approach: EXCLUDE output-pathway components (V/O + W_down) from LoRA.
+LoRA is applied only to the mid-third of layers (rank 16, alpha 32).
 
-This tests the core hypothesis: constraining output-pathway components during
-DPO should preserve agent capability better than constraining other components.
+Like SAR, OC-DPO modifies alignment-related components and may affect safety
+behavior. Re-run safety evaluation before any deployment of OC-DPO models.
+
+Uses reference-free DPO (no frozen reference model) with beta=0.1, lr=5e-5,
+5 epochs, weight_decay=0.01, grad_clip=1.0. Training data: 20 structured-
+generation examples embedded in this script. Evaluation: first 30 of 209
+agent examples (subset for computational efficiency during training loop).
 
 Conditions:
   - standard: LoRA on all projections (q,k,v,o,gate,up,down)
@@ -14,17 +20,27 @@ Conditions:
   - exclude_mlp_down: LoRA on all EXCEPT down
   - exclude_qk: LoRA on all EXCEPT q,k (control — protects routing)
   - exclude_random: LoRA on random ~60% of projections
-
-Memory: Model fp16 ~14GB + LoRA ~100MB + gradients ~100MB = ~14.2GB. Easy fit.
 """
 
 import sys
 import json
+import random
 import torch
 import numpy as np
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).parent))
+
+
+def set_seed(seed=42):
+    random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    np.random.seed(seed)
+
+
 RESULTS_DIR = Path("./results")
+RESULTS_DIR.mkdir(exist_ok=True)
 
 TRAIN_DATA = [
     {"prompt": "Tools: search(q)\nUser: Capital of France?\nThought: Search.\nAction: ", "chosen": 'search(q="capital of France")', "rejected": "The capital of France is Paris."},
@@ -49,9 +65,8 @@ TRAIN_DATA = [
     {"prompt": "Terraform: EC2\n\nresource \"aws_instance\" \"web\" {\n  ", "chosen": 'ami = "ami-abc"\n  instance_type = "t2.micro"', "rejected": "Create an EC2 resource."},
 ]
 
-import importlib
-_attribution = importlib.import_module("01_attribution")
-EVAL_EXAMPLES = _attribution.AGENT_EXAMPLES
+from agent_examples_200 import BASE_EXAMPLES, EXTRA_EXAMPLES
+EVAL_EXAMPLES = BASE_EXAMPLES + EXTRA_EXAMPLES
 
 
 def compute_agent_loss(model, tokenizer, examples, device):
@@ -96,7 +111,7 @@ def get_mid_layer_targets(num_layers):
     return list(range(mid_start, mid_end))
 
 
-def run_condition(base_dir, device, tokenizer, condition, num_epochs=5, lr=5e-5):
+def run_condition(base_dir, device, tokenizer, condition, num_epochs=5, lr=5e-5, seed=42):
     """Train one DPO condition with selective LoRA."""
     from transformers import AutoModelForCausalLM
     from peft import LoraConfig, get_peft_model
@@ -105,6 +120,7 @@ def run_condition(base_dir, device, tokenizer, condition, num_epochs=5, lr=5e-5)
     print(f"Condition: {condition}")
     print(f"{'='*60}")
 
+    set_seed(seed)
     model = AutoModelForCausalLM.from_pretrained(
         base_dir, torch_dtype=torch.float16, device_map=device, trust_remote_code=True
     )
@@ -115,7 +131,7 @@ def run_condition(base_dir, device, tokenizer, condition, num_epochs=5, lr=5e-5)
 
     # Set up LoRA targets
     if condition == "exclude_random":
-        np.random.seed(42)
+        np.random.seed(seed)
         targets = [t for t in ALL_TARGETS if np.random.random() > 0.4]
         if not targets:
             targets = ["q_proj"]  # Ensure at least one
@@ -182,7 +198,9 @@ def run_condition(base_dir, device, tokenizer, condition, num_epochs=5, lr=5e-5)
             rejected_logp = rejected_lps.gather(
                 1, rejected_ids[0, prompt_len:].unsqueeze(1)).squeeze(1).sum()
 
-            loss = -torch.nn.functional.logsigmoid(0.1 * (chosen_logp - rejected_logp))
+            # Reference-free DPO (no frozen reference model); beta=0.1
+            beta = 0.1
+            loss = -torch.nn.functional.logsigmoid(beta * (chosen_logp - rejected_logp))
             loss.backward()
             torch.nn.utils.clip_grad_norm_(
                 [p for p in model.parameters() if p.requires_grad], 1.0)
@@ -210,7 +228,8 @@ def run_condition(base_dir, device, tokenizer, condition, num_epochs=5, lr=5e-5)
     }
 
 
-def run_experiment(base_dir, device="cuda:0", model_name="unknown"):
+def run_experiment(base_dir, device="cuda:0", model_name="unknown", seed=42):
+    set_seed(seed)
     from transformers import AutoTokenizer
 
     tokenizer = AutoTokenizer.from_pretrained(base_dir, trust_remote_code=True)
@@ -222,7 +241,7 @@ def run_experiment(base_dir, device="cuda:0", model_name="unknown"):
     results = {}
 
     for condition in conditions:
-        result = run_condition(base_dir, device, tokenizer, condition)
+        result = run_condition(base_dir, device, tokenizer, condition, seed=seed)
         results[condition] = result
 
     # Summary
@@ -262,10 +281,11 @@ def run_experiment(base_dir, device="cuda:0", model_name="unknown"):
     output = {
         "analysis": "OC-DPO via selective LoRA (mid-layer targeting)",
         "model": model_name,
+        "seed": seed,
         "conditions": results,
         "standard_loss_change": std_change,
     }
-    out_path = RESULTS_DIR / f"ocdpo_{safe_name}.json"
+    out_path = RESULTS_DIR / f"ocdpo_eval_{safe_name}_seed{seed}.json"
     with open(out_path, "w") as f:
         json.dump(output, f, indent=2, default=str)
     print(f"\nSaved to {out_path}")
@@ -275,5 +295,6 @@ if __name__ == "__main__":
     base_dir = sys.argv[1]
     device = sys.argv[2] if len(sys.argv) > 2 else "cuda:0"
     model_name = sys.argv[3] if len(sys.argv) > 3 else "unknown"
+    seed = int(sys.argv[4]) if len(sys.argv) > 4 else 42
 
-    run_experiment(base_dir, device=device, model_name=model_name)
+    run_experiment(base_dir, device=device, model_name=model_name, seed=seed)

@@ -1,8 +1,6 @@
 {
   "experiment": "scaling_14b",
-  "base_model": "Qwen/Qwen2.5-14B",
-  "it_model": "Qwen/Qwen2.5-14B-Instruct",
-  "fix_note": "v2: corrected harm score sign (bl - patched_loss)",
+  "model": "Qwen2.5-14B",
   "attribution": {
     "num_examples": 209,
     "num_valid": 209,
@@ -3051,5 +3049,70 @@
       }
     ]
   },
-  "total_elapsed_seconds": 5705.830360412598
+  "ocdpo": {
+    "conditions": {
+      "standard": {
+        "condition": "standard",
+        "lora_targets": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj",
+          "gate_proj",
+          "up_proj",
+          "down_proj"
+        ],
+        "mid_layers": [
+          16,
+          31
+        ],
+        "num_mid_layers": 16,
+        "pre_loss": 0.9012332327342664,
+        "post_loss": 1.3235046061090037,
+        "loss_change": 0.4222713733747373,
+        "trainable_params_M": 22.9376,
+        "total_params_M": 14792.971264
+      },
+      "ocdpo_exclude_output": {
+        "condition": "ocdpo_exclude_output",
+        "lora_targets": [
+          "q_proj",
+          "k_proj",
+          "gate_proj",
+          "up_proj"
+        ],
+        "mid_layers": [
+          16,
+          31
+        ],
+        "num_mid_layers": 16,
+        "pre_loss": 0.9012332327342664,
+        "post_loss": 0.9947131860571212,
+        "loss_change": 0.09347995332285486,
+        "trainable_params_M": 13.893632,
+        "total_params_M": 14783.927296
+      },
+      "exclude_qk": {
+        "condition": "exclude_qk",
+        "lora_targets": [
+          "v_proj",
+          "o_proj",
+          "gate_proj",
+          "up_proj",
+          "down_proj"
+        ],
+        "mid_layers": [
+          16,
+          31
+        ],
+        "num_mid_layers": 16,
+        "pre_loss": 0.9012332327342664,
+        "post_loss": 1.2255373367513835,
+        "loss_change": 0.3243041040171172,
+        "trainable_params_M": 18.743296,
+        "total_params_M": 14788.77696
+      }
+    },
+    "standard_loss_change": 0.4222713733747373
+  }
 }

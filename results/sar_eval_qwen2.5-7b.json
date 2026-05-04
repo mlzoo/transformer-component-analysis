@@ -1,193 +1,69 @@
 {
   "analysis": "SAR evaluation",
   "model_pair": "qwen2.5-7b",
-  "base_loss": 0.9870277797396557,
-  "it_loss": 1.1280969930126206,
-  "alignment_tax": 0.14106921327296484,
+  "base_loss": 0.7336175421847552,
+  "it_loss": 0.8288163690646594,
+  "alignment_tax": 0.09519882687990422,
   "results": {
-    "IT_baseline": 1.1280969930126206,
-    "base_model": 0.9870277797396557,
-    "alignment_tax": 0.14106921327296484,
+    "IT_baseline": 0.8288163690646594,
+    "base_model": 0.7336175421847552,
+    "alignment_tax": 0.09519882687990422,
     "topk_k3": {
-      "loss": 1.0641398211016277,
-      "recovery": 0.06395717191099282,
-      "pct_tax_recovered": 45.33744140703297,
+      "loss": 0.7856868564637544,
+      "recovery": 0.04312951260090503,
+      "pct_tax_recovered": 45.30466815028511,
       "n_components": 5,
       "type_composition": {
         "W_Q": 2,
-        "W_down": 2,
-        "W_up": 1
-      }
-    },
-    "topk_k5": {
-      "loss": 1.0351223368638083,
-      "recovery": 0.09297465614881228,
-      "pct_tax_recovered": 65.90712033596516,
-      "n_components": 9,
-      "type_composition": {
-        "W_Q": 2,
-        "W_down": 5,
-        "W_up": 2
-      }
-    },
-    "topk_k8": {
-      "loss": 1.0088488243219749,
-      "recovery": 0.1192481686906457,
-      "pct_tax_recovered": 84.53167485942092,
-      "n_components": 15,
-      "type_composition": {
-        "W_Q": 2,
-        "W_down": 11,
-        "W_up": 2
-      }
-    },
-    "topk_k10": {
-      "loss": 0.9961790633964274,
-      "recovery": 0.1319179296161932,
-      "pct_tax_recovered": 93.51291224750493,
-      "n_components": 19,
-      "type_composition": {
-        "W_Q": 2,
-        "W_down": 12,
-        "W_up": 2,
-        "W_gate": 2,
-        "W_V": 1
-      }
-    },
-    "heuristic": {
-      "loss": 1.0679817358873815,
-      "recovery": 0.06011525712523902,
-      "pct_tax_recovered": 42.61401600710549,
-      "n_components": 27,
-      "type_composition": {
-        "W_down": 9,
-        "W_O": 9,
-        "W_V": 9
-      }
-    },
-    "vo_only": {
-      "loss": 1.106073445836095,
-      "recovery": 0.02202354717652555,
-      "pct_tax_recovered": 15.611873537502916,
-      "n_components": 18,
-      "type_composition": {
-        "W_O": 9,
-        "W_V": 9
-      }
-    },
-    "mlp_only": {
-      "loss": 1.08788675194158,
-      "recovery": 0.04021024107104054,
-      "pct_tax_recovered": 28.503909632809034,
-      "n_components": 9,
-      "type_composition": {
-        "W_down": 9
-      }
-    },
-    "qk_only": {
-      "loss": 1.1218424705537204,
-      "recovery": 0.006254522458900125,
-      "pct_tax_recovered": 4.433655163864709,
-      "n_components": 18,
-      "type_composition": {
-        "W_Q": 9,
-        "W_K": 9
-      }
-    },
-    "random_k3": {
-      "loss": 1.131095638195563,
-      "recovery": -0.002998645182942461,
-      "pct_tax_recovered": -2.1256552818084904,
-      "n_components": 5,
-      "type_composition": {
-        "W_Q": 1,
         "W_up": 1,
-        "W_O": 1,
-        "W_down": 1,
-        "W_K": 1
-      }
-    },
-    "random_k5": {
-      "loss": 1.1088204788399008,
-      "recovery": 0.019276514172719805,
-      "pct_tax_recovered": 13.664579056962847,
-      "n_components": 9,
-      "type_composition": {
-        "W_O": 1,
-        "W_gate": 2,
-        "W_down": 2,
-        "W_Q": 1,
-        "W_V": 2,
-        "W_K": 1
-      }
-    },
-    "random_k8": {
-      "loss": 1.096845857622892,
-      "recovery": 0.03125113538972846,
-      "pct_tax_recovered": 22.153051445221017,
-      "n_components": 15,
-      "type_composition": {
-        "W_O": 3,
-        "W_K": 1,
-        "W_V": 2,
-        "W_gate": 2,
-        "W_Q": 2,
-        "W_up": 3,
         "W_down": 2
       }
     },
-    "random_k10": {
-      "loss": 1.0814212008543904,
-      "recovery": 0.046675792158230145,
-      "pct_tax_recovered": 33.0871570595023,
-      "n_components": 19,
-      "type_composition": {
-        "W_V": 2,
-        "W_Q": 4,
-        "W_K": 3,
-        "W_down": 4,
-        "W_O": 2,
-        "W_up": 2,
-        "W_gate": 2
-      }
-    },
-    "magnitude_k3": {
-      "loss": 1.110978297630172,
-      "recovery": 0.01711869538244848,
-      "pct_tax_recovered": 12.134961970280715,
-      "n_components": 5,
-      "type_composition": {
-        "W_gate": 5
-      }
-    },
-    "magnitude_k5": {
-      "loss": 1.0993663379313716,
-      "recovery": 0.028730655081248946,
-      "pct_tax_recovered": 20.366353802268648,
+    "topk_k5": {
+      "loss": 0.769561667059093,
+      "recovery": 0.05925470200556637,
+      "pct_tax_recovered": 62.24310104190434,
       "n_components": 9,
       "type_composition": {
-        "W_gate": 9
+        "W_Q": 2,
+        "W_up": 2,
+        "W_down": 5
       }
     },
-    "magnitude_k8": {
-      "loss": 1.079219303475965,
-      "recovery": 0.04887768953665561,
-      "pct_tax_recovered": 34.648020218329776,
+    "topk_k8": {
+      "loss": 0.7549343184520133,
+      "recovery": 0.07388205061264608,
+      "pct_tax_recovered": 77.60815236289645,
       "n_components": 15,
       "type_composition": {
-        "W_gate": 13,
-        "W_up": 2
+        "W_Q": 2,
+        "W_up": 3,
+        "W_down": 10
       }
     },
-    "magnitude_k10": {
-      "loss": 1.0596982401501651,
-      "recovery": 0.06839875286245545,
-      "pct_tax_recovered": 48.48595329592279,
+    "topk_k10": {
+      "loss": 0.7458614706207798,
+      "recovery": 0.0829548984438796,
+      "pct_tax_recovered": 87.13857214703849,
       "n_components": 19,
       "type_composition": {
-        "W_gate": 14,
-        "W_up": 5
+        "W_Q": 2,
+        "W_up": 3,
+        "W_down": 13,
+        "W_O": 1
       }
+    },
+    "heuristic": {
+      "loss": 0.7842293304992863,
+      "recovery": 0.04458703856537305,
+      "pct_tax_recovered": 46.83570168529572,
+      "n_components": 27
+    },
+    "random_k5": {
+      "loss": 0.8174090612302882,
+      "recovery": 0.011407307834371124,
+      "pct_tax_recovered": 11.982613870611807,
+      "n_components": 9
     }
   }
 }

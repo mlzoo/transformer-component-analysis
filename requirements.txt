@@ -1,12 +1,14 @@
 torch>=2.1.0
 transformers>=4.48.0
-accelerate
 peft>=0.14.0
-trl>=0.14.0
-safetensors
-scipy
-numpy
-matplotlib
-wandb
-datasets
-boto3
+safetensors>=0.4.0
+scipy>=1.11.0
+numpy>=1.24.0
+matplotlib>=3.7.0
+datasets>=2.16.0
+accelerate>=0.25.0
+sentencepiece
+protobuf
+huggingface_hub
+wandb>=0.16.0  # optional: experiment tracking; scripts run without it
+requests  # optional: required only for safety evaluation Phase 2 (LLM judge)

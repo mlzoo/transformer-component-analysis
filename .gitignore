@@ -5,6 +5,9 @@ wandb/
 *.pt
 *.bin
 *.safetensors
+*.pth
 .DS_Store
 *.log
 .env
+data/bfcl/
+data/*.csv

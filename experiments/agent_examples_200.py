@@ -1,16 +1,86 @@
 """
-Extended agent evaluation set: 200+ structured generation examples.
+Extended agent evaluation set: 209 structured generation examples.
 Covers: tool calls, JSON, SQL, API, code, bash, config, ReAct, GraphQL,
 MongoDB, cron, regex, CSS, git, terraform, docker, CI/CD, YAML, XML,
-protobuf, type annotations, math expressions, data transforms, etc.
+type annotations, math expressions, data transforms, etc.
+
+Note: 4 prompts appear in both BASE_EXAMPLES (as stubs) and EXTRA_EXAMPLES
+(as complete targets). The combined 209-element list was used for all
+pre-computed results; do not de-duplicate without re-running experiments.
 """
 
-# Import original 49 examples
-import importlib
-_attribution = importlib.import_module("01_attribution")
-BASE_EXAMPLES = _attribution.AGENT_EXAMPLES
+BASE_EXAMPLES = [
+    # Tool calls
+    {"prompt": "You are a helpful assistant with tools.\nTools: search(query), calculator(expr)\nUser: Population of France times 2?\nThought: Search first.\nAction: search(query=\"population of France\")\nObservation: 68 million.\nThought: Multiply.\nAction: ", "target": 'calculator(expression="68000000 * 2")'},
+    {"prompt": "Tools: web_search(q), read_file(path)\nTask: Weather in NYC\nThought: Search.\nAction: ", "target": 'web_search(q="weather NYC")'},
+    {"prompt": "Function call: send_email(to=", "target": '"user@example.com", subject="Hello", body="Test")'},
+    {"prompt": "Tools: calculator(expr)\nUser: What is 15*23?\nThought: Use calculator.\nAction: ", "target": 'calculator(expr="15*23")'},
+    {"prompt": "Tools: translate(text, lang)\nUser: Translate hello to Spanish\nAction: ", "target": 'translate(text="hello", lang="es")'},
+    # JSON
+    {"prompt": 'Respond in JSON.\nUser: What is 2+2?\n\n{"', "target": '"answer": 4}'},
+    {"prompt": 'Output JSON: Name=Alice, Age=30\n\n{"name": "', "target": 'Alice", "age": 30}'},
+    {"prompt": 'Parse to JSON: "Meeting 3pm Room 204"\n\n{"', "target": '"event": "Meeting", "time": "3pm", "location": "Room 204"}'},
+    {"prompt": 'Product: Widget, Price: $9.99, Stock: 150\n\n{"product": "', "target": 'Widget", "price": 9.99, "stock": 150}'},
+    {"prompt": 'Code review bot. Code: x = eval(input())\n\n{"', "target": '"verdict": "reject", "reason": "eval on user input"}'},
+    {"prompt": 'Router: GET /api/users/123\n\n{"', "target": '"handler": "getUser", "params": {"id": "123"}}'},
+    {"prompt": 'CI decision: 142/142 unit pass, 38/40 integ pass\n\n{"', "target": '"action": "proceed", "deploy": true, "warnings": ["2 flaky tests"]}'},
+    {"prompt": 'Error log: NullPointerException at UserService.java:42\n\n{"', "target": '"severity": "high", "file": "UserService.java", "line": 42}'},
+    {"prompt": 'Sentiment: "This product is amazing!"\n\n{"', "target": '"sentiment": "positive", "confidence": 0.95}'},
+    {"prompt": 'Extract entities: "John works at Google in NYC"\n\n{"', "target": '"entities": [{"text": "John", "type": "PERSON"}, {"text": "Google", "type": "ORG"}]}'},
+    # ReAct
+    {"prompt": "ReAct agent.\nQ: Capital of France?\nThought: Search.\nAction: ", "target": "search[capital of France]"},
+    {"prompt": "ReAct agent.\nQ: Who wrote Hamlet?\nThought: I should look this up.\nAction: ", "target": "search[author of Hamlet]"},
+    {"prompt": "ReAct agent.\nQ: Distance from Earth to Mars?\nThought: Need to search.\nAction: ", "target": "search[distance Earth Mars]"},
+    # SQL
+    {"prompt": "SQL: Get users where age > 25\n\nSELECT ", "target": "* FROM users WHERE age > 25;"},
+    {"prompt": "SQL: Count orders per customer\n\nSELECT ", "target": "customer_id, COUNT(*) FROM orders GROUP BY customer_id;"},
+    {"prompt": "SQL: Top 10 products by revenue\n\nSELECT ", "target": "product_name, SUM(price * quantity) as revenue FROM orders GROUP BY product_name ORDER BY revenue DESC LIMIT 10;"},
+    # API
+    {"prompt": "API call: Delete user 42\n\n", "target": "DELETE /api/users/42"},
+    {"prompt": "API call: Update user 7 email\n\n", "target": 'PATCH /api/users/7 {"email": "new@example.com"}'},
+    {"prompt": "API call: List all products\n\n", "target": "GET /api/products"},
+    # Code
+    {"prompt": "```python\ndef fibonacci(n):\n    ", "target": "if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)"},
+    {"prompt": "```python\ndef is_palindrome(s):\n    ", "target": "return s == s[::-1]"},
+    {"prompt": "```python\ndef binary_search(arr, target):\n    ", "target": "left, right = 0, len(arr) - 1\n    while left <= right:"},
+    {"prompt": "```javascript\nfunction debounce(fn, delay) {\n    ", "target": "let timer;\n    return function(...args) {"},
+    # Bash
+    {"prompt": "Bash: List .py files modified today\n\n```bash\n", "target": "find . -name '*.py' -mtime 0\n```"},
+    {"prompt": "Bash: Find processes using port 8080\n\n```bash\n", "target": "lsof -i :8080\n```"},
+    # Config
+    {"prompt": "YAML config:\nserver:\n  host: 0.0.0.0\n  port: ", "target": "8080\n  workers: 4"},
+    {"prompt": "Docker Compose:\nservices:\n  web:\n    image: ", "target": "nginx:latest\n    ports:\n      - '80:80'"},
+    {"prompt": "Dockerfile for Flask:\n\nFROM ", "target": "python:3.11-slim\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install -r requirements.txt"},
+    # GraphQL
+    {"prompt": "GraphQL: Get user by ID with posts\n\n```graphql\n", "target": "query GetUser($id: ID!) {\n  user(id: $id) {\n    name\n    posts { title }\n  }\n}"},
+    {"prompt": "GraphQL mutation: Create user\n\n```graphql\n", "target": "mutation CreateUser($input: UserInput!) {\n  createUser(input: $input) {\n    id\n    name\n  }\n}"},
+    # MongoDB
+    {"prompt": "MongoDB: Orders over $100 last week\n\ndb.orders.find(", "target": '{"amount": {"$gt": 100}})'},
+    {"prompt": "MongoDB: Update user email\n\ndb.users.updateOne(", "target": '{"_id": ObjectId("abc")}, {"$set": {"email": "new@test.com"}})'},
+    # Cron
+    {"prompt": "Cron: Every Monday 9am\n\n", "target": "0 9 * * 1"},
+    {"prompt": "Cron: Every 5 minutes\n\n", "target": "*/5 * * * *"},
+    # Regex
+    {"prompt": "Regex: Match email addresses\n\n", "target": r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"},
+    {"prompt": "Regex: Match ISO date (YYYY-MM-DD)\n\n", "target": r"\d{4}-\d{2}-\d{2}"},
+    # Markdown
+    {"prompt": "Create a markdown table:\n| Name | Age |\n|", "target": "------|-----|\n| Alice | 30 |\n| Bob | 25 |"},
+    # TypeScript
+    {"prompt": "```typescript\ninterface User {\n  ", "target": "id: number;\n  name: string;\n  email: string;\n}"},
+    # CSS
+    {"prompt": "CSS: Center div horizontally and vertically\n\n.container {\n  ", "target": "display: flex;\n  justify-content: center;\n  align-items: center;\n}"},
+    # git
+    {"prompt": "Git: Undo last commit but keep changes\n\n$ ", "target": "git reset --soft HEAD~1"},
+    # terraform
+    {"prompt": "Terraform: AWS EC2 instance\n\nresource \"aws_instance\" \"web\" {\n  ", "target": 'ami           = "ami-0c55b159cbfafe1f0"\n  instance_type = "t2.micro"'},
+    # nginx
+    {"prompt": "Nginx: Reverse proxy to port 3000\n\nlocation / {\n    ", "target": "proxy_pass http://localhost:3000;\n    proxy_set_header Host $host;"},
+    # makefile
+    {"prompt": "Makefile target: build and test\n\nall: build test\n\nbuild:\n\t", "target": "go build -o bin/app ./cmd/main.go\n\ntest:\n\tgo test ./..."},
+    # GitHub Actions
+    {"prompt": "GitHub Actions: Run tests on push\n\nname: CI\non: push\njobs:\n  test:\n    runs-on: ", "target": "ubuntu-latest\n    steps:\n      - uses: actions/checkout@v3"},
+]
 
-# 160+ additional examples
 EXTRA_EXAMPLES = [
     # Tool calls (20 more)
     {"prompt": "Tools: get_weather(city)\nUser: Weather in London?\nAction: ", "target": 'get_weather(city="London")'},
@@ -74,7 +144,7 @@ EXTRA_EXAMPLES = [
     {"prompt": "SQL: Pivot monthly sales\n\nSELECT ", "target": "product, SUM(CASE WHEN month = 1 THEN sales END) as jan, SUM(CASE WHEN month = 2 THEN sales END) as feb FROM sales GROUP BY product;"},
 
     # Code (20 more)
-    {"prompt": "```python\ndef fibonacci(n):\n    ", "target": 'if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)\n```'},
+    {"prompt": "```python\ndef factorial(n):\n    ", "target": 'if n <= 1:\n        return 1\n    return n * factorial(n-1)\n```'},
     {"prompt": "```python\ndef is_palindrome(s):\n    ", "target": 'return s == s[::-1]\n```'},
     {"prompt": "```python\nclass Stack:\n    def __init__(self):\n        ", "target": 'self.items = []\n    \n    def push(self, item):\n        self.items.append(item)\n    \n    def pop(self):\n        return self.items.pop()\n```'},
     {"prompt": "```python\ndef binary_search(arr, target):\n    ", "target": "left, right = 0, len(arr) - 1\n    while left <= right:\n        mid = (left + right) // 2\n        if arr[mid] == target:\n            return mid\n        elif arr[mid] < target:\n            left = mid + 1\n        else:\n            right = mid - 1\n    return -1\n```"},
@@ -171,8 +241,8 @@ EXTRA_EXAMPLES = [
     {"prompt": "git: Stash with message\n\n$ ", "target": 'git stash push -m "WIP: fixing auth"'},
     {"prompt": "git: Show diff for staged files\n\n$ ", "target": "git diff --cached"},
 
-    # Cron (5 more)
-    {"prompt": "Cron: Every 5 minutes\n\n", "target": "*/5 * * * *"},
+    # Cron
+    {"prompt": "Cron: Every hour on the hour\n\n", "target": "0 * * * *"},
     {"prompt": "Cron: Weekdays at midnight\n\n", "target": "0 0 * * 1-5"},
     {"prompt": "Cron: First day of every month at noon\n\n", "target": "0 12 1 * *"},
     {"prompt": "Cron: Every Sunday at 3am\n\n", "target": "0 3 * * 0"},
@@ -205,5 +275,5 @@ EXTRA_EXAMPLES = [
     {"prompt": "LaTeX: Cross entropy loss\n\n$$", "target": "\\mathcal{L} = -\\sum_{i} y_i \\log(\\hat{y}_i)$$"},
 ]
 
-# Combined set: 49 original + 160 new = 209 total
+# Combined set: 49 original + 160 extended = 209 total
 AGENT_EXAMPLES_200 = list(BASE_EXAMPLES) + EXTRA_EXAMPLES

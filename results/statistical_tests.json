@@ -1,0 +1,102 @@
+{
+  "analysis": "Statistical tests computed from 20-seed random baselines (Yi: 10 seeds)",
+  "pages_test": [
+    {
+      "model": "llama-3.1-8b",
+      "L": 407.0,
+      "Z": 2.875,
+      "p": 0.0020201374899460056,
+      "n_layers": 32,
+      "n_ordered": 8
+    },
+    {
+      "model": "mistral-7b",
+      "L": 434.0,
+      "Z": 6.25,
+      "p": 2.0522639143649712e-10,
+      "n_layers": 32,
+      "n_ordered": 18
+    },
+    {
+      "model": "qwen2.5-7b",
+      "L": 365.0,
+      "Z": 3.8752880077301537,
+      "p": 5.3249330919880045e-05,
+      "n_layers": 28,
+      "n_ordered": 13
+    },
+    {
+      "model": "yi-1.5-9b",
+      "L": 585.0,
+      "Z": 0.9185586535436918,
+      "p": 0.17916323337444018,
+      "n_layers": 48,
+      "n_ordered": 10
+    }
+  ],
+  "block_permutation": [
+    {
+      "model": "llama-3.1-8b",
+      "observed_diff": 0.0004702207574433687,
+      "p_block": 9e-05,
+      "p_value": 0.00011
+    },
+    {
+      "model": "mistral-7b",
+      "observed_diff": 0.0008425156465557776,
+      "p_block": 0.0,
+      "p_value": 0.0
+    },
+    {
+      "model": "qwen2.5-7b",
+      "observed_diff": 0.00035936188306697663,
+      "p_block": 0.25417,
+      "p_value": 0.28
+    },
+    {
+      "model": "yi-1.5-9b",
+      "observed_diff": 0.0002381740764757854,
+      "p_block": 0.07254,
+      "p_value": 0.13
+    }
+  ],
+  "bootstrap_ci": [
+    {
+      "model": "qwen2.5-7b",
+      "n_seeds": 20,
+      "ratio": 4.206213228262058,
+      "ci_lo": 3.5908063044047673,
+      "ci_hi": 4.9826126454447515,
+      "sar_recovery": 62.11683350930417,
+      "random_mean": 14.767875554176289
+    },
+    {
+      "model": "llama-3.1-8b",
+      "n_seeds": 20,
+      "ratio": 5.255676531857988,
+      "ci_lo": 4.1218468109926665,
+      "ci_hi": 7.553940404504115,
+      "sar_recovery": -97.47068775408874,
+      "random_mean": -18.54579275631921
+    },
+    {
+      "model": "mistral-7b",
+      "n_seeds": 20,
+      "ratio": 2.7518836646439664,
+      "ci_lo": 2.265639422517956,
+      "ci_hi": 3.6171136874092245,
+      "sar_recovery": -536.4016076917073,
+      "random_mean": -194.92161481365022
+    },
+    {
+      "model": "yi-1.5-9b",
+      "n_seeds": 10,
+      "ratio": null,
+      "ci_lo": null,
+      "ci_hi": null,
+      "sar_recovery": 239.44985266665654,
+      "random_mean": -3.2879799353367636,
+      "note": "Ratio omitted: random mean is negative, making ratio uninterpretable"
+    }
+  ]
+}

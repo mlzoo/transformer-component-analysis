@@ -1,0 +1,62 @@
+{
+  "analysis": "HumanEval code generation benchmark (combined)",
+  "n_problems": 164,
+  "models": [
+    "qwen2.5-7b",
+    "llama-3.1-8b",
+    "mistral-7b"
+  ],
+  "results": {
+    "qwen2.5-7b": {
+      "base": {
+        "pass_at_1": 0.573170731707317,
+        "n_pass": 94,
+        "n_total": 164
+      },
+      "it": {
+        "pass_at_1": 0.6219512195121951,
+        "n_pass": 102,
+        "n_total": 164
+      },
+      "sar_5pct": {
+        "pass_at_1": 0.6463414634146342,
+        "n_pass": 106,
+        "n_total": 164
+      }
+    },
+    "llama-3.1-8b": {
+      "base": {
+        "pass_at_1": 0.36585365853658536,
+        "n_pass": 60,
+        "n_total": 164
+      },
+      "it": {
+        "pass_at_1": 0.49390243902439024,
+        "n_pass": 81,
+        "n_total": 164
+      },
+      "sar_5pct": {
+        "pass_at_1": 0.524390243902439,
+        "n_pass": 86,
+        "n_total": 164
+      }
+    },
+    "mistral-7b": {
+      "base": {
+        "pass_at_1": 0.012195121951219513,
+        "n_pass": 2,
+        "n_total": 164
+      },
+      "it": {
+        "pass_at_1": 0.3048780487804878,
+        "n_pass": 50,
+        "n_total": 164
+      },
+      "sar_5pct": {
+        "pass_at_1": 0.31097560975609756,
+        "n_pass": 51,
+        "n_total": 164
+      }
+    }
+  }
+}

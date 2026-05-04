@@ -6,7 +6,7 @@ Measures pass@1 for Base, IT, and SAR-5% variants across 3 model families to qua
 the alignment tax on code generation.
 
 Usage:
-    python3 humaneval.py cuda:0
+    python 07_humaneval.py cuda:0
 """
 
 import sys
@@ -24,38 +24,44 @@ import torch
 from datasets import load_dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-import wandb
+try:
+    import wandb
+    HAS_WANDB = True
+except ImportError:
+    wandb = None
+    HAS_WANDB = False
 
 # ============================================================
 # Configuration
 # ============================================================
 
 RESULTS_DIR = Path("./results")
+RESULTS_DIR.mkdir(exist_ok=True)
 
 MODEL_CONFIGS = [
     {
         "name": "qwen2.5-7b",
         "base_dir": "./models/Qwen2.5-7B",
         "it_dir": "./models/Qwen2.5-7B-Instruct",
-        "attribution_file": "./results/attribution_qwen2.5-7b.json",
+        "attribution_file": "attribution_qwen2.5-7b.json",
     },
     {
         "name": "llama-3.1-8b",
         "base_dir": "./models/Llama-3.1-8B",
         "it_dir": "./models/Llama-3.1-8B-Instruct",
-        "attribution_file": "./results/attribution_llama-3.1-8b.json",
+        "attribution_file": "attribution_llama-3.1-8b.json",
     },
     {
         "name": "mistral-7b",
         "base_dir": "./models/Mistral-7B-v0.3",
         "it_dir": "./models/Mistral-7B-Instruct-v0.3",
-        "attribution_file": "./results/attribution_mistral-7b.json",
+        "attribution_file": "attribution_mistral-7b.json",
     },
     {
         "name": "yi-1.5-9b",
         "base_dir": "./models/Yi-1.5-9B",
         "it_dir": "./models/Yi-1.5-9B-Chat",
-        "attribution_file": "./results/attribution_yi.json",
+        "attribution_file": "attribution_yi-1.5-9b.json",
     },
 ]
 
@@ -101,7 +107,7 @@ def check_correctness(problem, completion, timeout=EXEC_TIMEOUT):
         tmp_path = f.name
     try:
         result = subprocess.run(
-            ["python3", tmp_path],
+            [sys.executable, tmp_path],
             capture_output=True,
             timeout=timeout,
         )
@@ -133,7 +139,6 @@ def generate_completion(model, tokenizer, prompt_text, device):
             input_ids,
             attention_mask=attention_mask,
             max_new_tokens=MAX_NEW_TOKENS,
-            temperature=1.0,  # temperature is ignored when do_sample=False
             do_sample=False,
             pad_token_id=tokenizer.eos_token_id,
         )
@@ -170,7 +175,7 @@ def build_chat_prompt(tokenizer, prompt):
 
 def load_attribution_scores(attribution_file):
     """Load attribution scores from JSON file."""
-    path = Path(attribution_file)
+    path = RESULTS_DIR / attribution_file
     if not path.exists():
         print(f"  WARNING: Attribution file not found: {path}")
         return {}
@@ -178,7 +183,7 @@ def load_attribution_scores(attribution_file):
         data = json.load(f)
     scores = {}
     for c in data.get("components", []):
-        scores[c["name"]] = c.get("mean_score", 0)
+        scores[c["name"]] = c.get("harm_score", 0)
     return scores
 
 
@@ -297,9 +302,10 @@ def run_model_family(config, device, problems):
     all_results["base"] = evaluate_humaneval(
         model, tokenizer, device, problems, f"{model_name}/Base", is_base=True
     )
-    wandb.log({
-        f"{model_name}/base_pass_at_1": all_results["base"]["pass_at_1"],
-    })
+    if HAS_WANDB:
+        wandb.log({
+            f"{model_name}/base_pass_at_1": all_results["base"]["pass_at_1"],
+        })
     del model, tokenizer
     gc.collect()
     torch.cuda.empty_cache()
@@ -315,9 +321,10 @@ def run_model_family(config, device, problems):
     all_results["it"] = evaluate_humaneval(
         model, tokenizer, device, problems, f"{model_name}/IT", is_base=False
     )
-    wandb.log({
-        f"{model_name}/it_pass_at_1": all_results["it"]["pass_at_1"],
-    })
+    if HAS_WANDB:
+        wandb.log({
+            f"{model_name}/it_pass_at_1": all_results["it"]["pass_at_1"],
+        })
     del model
     # Keep tokenizer for SAR (uses IT tokenizer)
     gc.collect()
@@ -334,9 +341,10 @@ def run_model_family(config, device, problems):
         all_results["sar_5pct"] = evaluate_humaneval(
             model, tokenizer, device, problems, f"{model_name}/SAR-5%", is_base=False
         )
-        wandb.log({
-            f"{model_name}/sar5_pass_at_1": all_results["sar_5pct"]["pass_at_1"],
-        })
+        if HAS_WANDB:
+            wandb.log({
+                f"{model_name}/sar5_pass_at_1": all_results["sar_5pct"]["pass_at_1"],
+            })
         del model
         gc.collect()
         torch.cuda.empty_cache()
@@ -383,24 +391,24 @@ def main():
     model_filter = sys.argv[2] if len(sys.argv) > 2 else None
     print(f"Device: {device}")
 
-    # W&B init
-    # Set WANDB_API_KEY environment variable before running
     configs_to_run = [c for c in MODEL_CONFIGS if model_filter is None or c["name"] == model_filter]
-    wandb.init(
-        project="anonymous-submission",
-        name=f"humaneval{'-' + model_filter if model_filter else ''}",
-        config={
-            "benchmark": "HumanEval",
-            "n_problems": 164,
-            "max_new_tokens": MAX_NEW_TOKENS,
-            "temperature": 0,
-            "do_sample": False,
-            "exec_timeout": EXEC_TIMEOUT,
-            "device": device,
-            "models": [c["name"] for c in configs_to_run],
-            "variants": ["base", "it", "sar_5pct"],
-        },
-    )
+    if HAS_WANDB:
+        wandb.init(
+            project="anonymous-submission",
+            name=f"humaneval{'-' + model_filter if model_filter else ''}",
+            mode=os.environ.get("WANDB_MODE", "disabled"),
+            config={
+                "benchmark": "HumanEval",
+                "n_problems": 164,
+                "max_new_tokens": MAX_NEW_TOKENS,
+                "temperature": 0,
+                "do_sample": False,
+                "exec_timeout": EXEC_TIMEOUT,
+                "device": device,
+                "models": [c["name"] for c in configs_to_run],
+                "variants": ["base", "it", "sar_5pct"],
+            },
+        )
 
     # Load HumanEval dataset
     print("Loading HumanEval dataset...")
@@ -442,9 +450,10 @@ def main():
         print(f"  {mname:<16} {base_s:>8} {it_s:>8} {sar_s:>8} {tax_s:>8} {rec_s:>10}")
 
     # Log combined to W&B
-    for mname, mres in combined_results.items():
-        for variant, vres in mres.items():
-            wandb.summary[f"{mname}/{variant}/pass_at_1"] = vres.get("pass_at_1", None)
+    if HAS_WANDB:
+        for mname, mres in combined_results.items():
+            for variant, vres in mres.items():
+                wandb.summary[f"{mname}/{variant}/pass_at_1"] = vres.get("pass_at_1", None)
 
     # Save combined results
     combined_output = {
@@ -458,7 +467,8 @@ def main():
         json.dump(combined_output, f, indent=2, default=str)
     print(f"\nSaved combined results to {combined_path}")
 
-    wandb.finish()
+    if HAS_WANDB:
+        wandb.finish()
     print("\nDone.")
 
 

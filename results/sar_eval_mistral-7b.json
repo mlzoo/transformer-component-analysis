@@ -1,0 +1,73 @@
+{
+  "analysis": "SAR evaluation",
+  "model_pair": "mistral-7b",
+  "base_loss": 0.6324502282503418,
+  "it_loss": 0.6285923334502478,
+  "alignment_tax": -0.0038578948000940194,
+  "results": {
+    "IT_baseline": 0.6285923334502478,
+    "base_model": 0.6324502282503418,
+    "alignment_tax": -0.0038578948000940194,
+    "topk_k3": {
+      "loss": 0.6125304675037033,
+      "recovery": 0.016061865946544462,
+      "pct_tax_recovered": null,
+      "n_components": 6,
+      "type_composition": {
+        "W_V": 2,
+        "W_O": 1,
+        "W_down": 3
+      }
+    },
+    "topk_k5": {
+      "loss": 0.6081903615862865,
+      "recovery": 0.02040197186396131,
+      "pct_tax_recovered": null,
+      "n_components": 11,
+      "type_composition": {
+        "W_V": 3,
+        "W_O": 1,
+        "W_down": 6,
+        "W_gate": 1
+      }
+    },
+    "topk_k8": {
+      "loss": 0.6033973492159013,
+      "recovery": 0.025194984234346518,
+      "pct_tax_recovered": null,
+      "n_components": 17,
+      "type_composition": {
+        "W_V": 3,
+        "W_O": 2,
+        "W_down": 9,
+        "W_gate": 1,
+        "W_up": 2
+      }
+    },
+    "topk_k10": {
+      "loss": 0.5995844935762307,
+      "recovery": 0.029007839874017116,
+      "pct_tax_recovered": null,
+      "n_components": 22,
+      "type_composition": {
+        "W_V": 3,
+        "W_O": 3,
+        "W_down": 12,
+        "W_gate": 1,
+        "W_up": 3
+      }
+    },
+    "heuristic": {
+      "loss": 0.5970683540337284,
+      "recovery": 0.03152397941651941,
+      "pct_tax_recovered": null,
+      "n_components": 33
+    },
+    "random_k5": {
+      "loss": 0.6410020641047554,
+      "recovery": -0.012409730654507529,
+      "pct_tax_recovered": null,
+      "n_components": 9
+    }
+  }
+}

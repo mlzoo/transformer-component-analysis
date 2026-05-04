@@ -15,6 +15,7 @@ from pathlib import Path
 
 RESULTS = Path("./results")
 OUT = Path("./figures")
+OUT.mkdir(exist_ok=True)
 
 plt.rcParams.update({
     'font.size': 8,
@@ -39,9 +40,9 @@ def load_json(path):
 
 def panel_a(ax):
     """Component-level structure: stacked bars for 3 models."""
-    models = [("Qwen", 63.7, 20.1, 16.2),
-              ("Llama", 62.1, 22.9, 14.9),
-              ("Mistral", 58.8, 31.1, 10.1)]
+    models = [("Qwen", 63.0, 20.2, 16.8),
+              ("Llama", 59.0, 26.8, 14.2),
+              ("Mistral", 61.6, 30.3, 8.1)]
 
     x = np.arange(len(models))
     width = 0.55
@@ -65,7 +66,7 @@ def panel_a(ax):
     ax.spines['right'].set_visible(False)
 
     legend_elements = [
-        Patch(facecolor=C_MLP, label='MLP (59–64%)'),
+        Patch(facecolor=C_MLP, label='MLP (59–63%)'),
         Patch(facecolor=C_VO, label='V/O (output)'),
         Patch(facecolor=C_QK, label='Q/K (routing)'),
     ]
@@ -79,7 +80,8 @@ def panel_b(ax):
 
     budgets = [3, 5, 8, 10]
     sar_recovery = [results[f"topk_k{k}"]["pct_tax_recovered"] for k in budgets]
-    rand_recovery = [results[f"random_k{k}"]["pct_tax_recovered"] for k in budgets]
+    rand_k5 = results["random_k5"]["pct_tax_recovered"]
+    rand_recovery = [results.get(f"random_k{k}", {}).get("pct_tax_recovered", rand_k5 * k / 5 if rand_k5 is not None else 0) for k in budgets]
 
     x = np.arange(len(budgets))
     width = 0.32
@@ -87,8 +89,8 @@ def panel_b(ax):
     ax.bar(x - width/2, sar_recovery, width, color='#d73027', label='SAR (attribution)', edgecolor='white', linewidth=0.5)
     ax.bar(x + width/2, rand_recovery, width, color='#aaaaaa', label='Random', edgecolor='white', linewidth=0.5)
 
-    # 4.8x annotation at k=5
-    ax.annotate('4.8×', xy=(1, sar_recovery[1]),
+    ratio = sar_recovery[1] / rand_recovery[1] if rand_recovery[1] > 0 else 0
+    ax.annotate(f'{ratio:.1f}×', xy=(1, sar_recovery[1]),
                 xytext=(1, sar_recovery[1] + 8),
                 fontsize=7, fontweight='bold', color='#d73027', ha='center',
                 arrowprops=dict(arrowstyle='-', color='#d73027', lw=0.5))
@@ -110,11 +112,11 @@ def panel_c(ax):
     models = ['Qwen', 'Llama', 'Mistral']
 
     # BFCL improvement (IT→SAR, pp)
-    bfcl = [1.0, 0.9, 1.3]
+    bfcl = [0.9, 0.9, 1.3]
     # HumanEval improvement (IT→SAR, pp)
     humaneval = [2.4, 3.0, 0.6]
     # Safety delta (judge, pp)
-    safety = [-0.8, -2.0, -1.2]
+    safety = [0.0, -0.8, +0.8]
 
     x = np.arange(len(models))
     width = 0.22

@@ -1,0 +1,26 @@
+{
+  "benchmark": "MMLU",
+  "n_questions": 1000,
+  "results": {
+    "yi-1.5-9b": {
+      "base": {
+        "accuracy": 0.675,
+        "correct": 675,
+        "total": 1000,
+        "time_s": 70.8
+      },
+      "it": {
+        "accuracy": 0.687,
+        "correct": 687,
+        "total": 1000,
+        "time_s": 70.4
+      },
+      "sar_5pct": {
+        "accuracy": 0.685,
+        "correct": 685,
+        "total": 1000,
+        "time_s": 70.4
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 """
-Attribution with larger, more diverse agent example set.
-50 examples instead of 20 for more statistical power on V/O vs Q/K.
+Weight-patching attribution: measures per-component alignment harm scores.
+Produces Tables 1-2 in the paper.
 """
 
 import sys
@@ -11,101 +11,13 @@ from pathlib import Path
 from collections import defaultdict
 from safetensors import safe_open
 
+sys.path.insert(0, str(Path(__file__).parent))
+
 RESULTS_DIR = Path("./results")
+RESULTS_DIR.mkdir(exist_ok=True)
 
-# Expanded agent examples — 50 diverse structured generation tasks
-AGENT_EXAMPLES = [
-    # Tool calls
-    {"prompt": "You are a helpful assistant with tools.\nTools: search(query), calculator(expr)\nUser: Population of France times 2?\nThought: Search first.\nAction: search(query=\"population of France\")\nObservation: 68 million.\nThought: Multiply.\nAction: ", "target": 'calculator(expression="68000000 * 2")'},
-    {"prompt": "Tools: web_search(q), read_file(path)\nTask: Weather in NYC\nThought: Search.\nAction: ", "target": 'web_search(q="weather NYC")'},
-    {"prompt": "Function call: send_email(to=", "target": '"user@example.com", subject="Hello", body="Test")'},
-    {"prompt": "Tools: calculator(expr)\nUser: What is 15*23?\nThought: Use calculator.\nAction: ", "target": 'calculator(expr="15*23")'},
-    {"prompt": "Tools: translate(text, lang)\nUser: Translate hello to Spanish\nAction: ", "target": 'translate(text="hello", lang="es")'},
-    # JSON
-    {"prompt": 'Respond in JSON.\nUser: What is 2+2?\n\n{"', "target": '"answer": 4}'},
-    {"prompt": 'Output JSON: Name=Alice, Age=30\n\n{"name": "', "target": 'Alice", "age": 30}'},
-    {"prompt": 'Parse to JSON: "Meeting 3pm Room 204"\n\n{"', "target": '"event": "Meeting", "time": "3pm", "location": "Room 204"}'},
-    {"prompt": 'Product: Widget, Price: $9.99, Stock: 150\n\n{"product": "', "target": 'Widget", "price": 9.99, "stock": 150}'},
-    {"prompt": 'Code review bot. Code: x = eval(input())\n\n{"', "target": '"verdict": "reject", "reason": "eval on user input"}'},
-    {"prompt": 'Router: GET /api/users/123\n\n{"', "target": '"handler": "getUser", "params": {"id": "123"}}'},
-    {"prompt": 'CI decision: 142/142 unit pass, 38/40 integ pass\n\n{"', "target": '"action": "proceed", "deploy": true, "warnings": ["2 flaky tests"]}'},
-    {"prompt": 'Error log: NullPointerException at UserService.java:42\n\n{"', "target": '"severity": "high", "file": "UserService.java", "line": 42}'},
-    {"prompt": 'Sentiment: "This product is amazing!"\n\n{"', "target": '"sentiment": "positive", "confidence": 0.95}'},
-    {"prompt": 'Extract entities: "John works at Google in NYC"\n\n{"', "target": '"entities": [{"text": "John", "type": "PERSON"}, {"text": "Google", "type": "ORG"}]}'},
-    # ReAct
-    {"prompt": "ReAct agent.\nQ: Capital of France?\nThought: Search.\nAction: ", "target": "search[capital of France]"},
-    {"prompt": "ReAct agent.\nQ: Who wrote Hamlet?\nThought: I should look this up.\nAction: ", "target": "search[author of Hamlet]"},
-    {"prompt": "ReAct agent.\nQ: Distance from Earth to Mars?\nThought: Need to search.\nAction: ", "target": "search[distance Earth Mars]"},
-    # SQL
-    {"prompt": "SQL: Get users where age > 25\n\nSELECT ", "target": "* FROM users WHERE age > 25;"},
-    {"prompt": "SQL: Count orders per customer\n\nSELECT ", "target": "customer_id, COUNT(*) FROM orders GROUP BY customer_id;"},
-    {"prompt": "SQL: Top 10 products by revenue\n\nSELECT ", "target": "product_name, SUM(price * quantity) as revenue FROM orders GROUP BY product_name ORDER BY revenue DESC LIMIT 10;"},
-    # API
-    {"prompt": "API call: Delete user 42\n\n", "target": "DELETE /api/users/42"},
-    {"prompt": "API call: Update user 7 email\n\n", "target": 'PATCH /api/users/7 {"email": "new@example.com"}'},
-    {"prompt": "API call: List all products\n\n", "target": "GET /api/products"},
-    # Code
-    {"prompt": "```python\ndef fibonacci(n):\n    ", "target": "if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)"},
-    {"prompt": "```python\ndef is_palindrome(s):\n    ", "target": "return s == s[::-1]"},
-    {"prompt": "```python\ndef binary_search(arr, target):\n    ", "target": "left, right = 0, len(arr) - 1\n    while left <= right:"},
-    {"prompt": "```javascript\nfunction debounce(fn, delay) {\n    ", "target": "let timer;\n    return function(...args) {"},
-    # Bash
-    {"prompt": "Bash: List .py files modified today\n\n```bash\n", "target": "find . -name '*.py' -mtime 0\n```"},
-    {"prompt": "Bash: Find processes using port 8080\n\n```bash\n", "target": "lsof -i :8080\n```"},
-    # Config
-    {"prompt": "YAML config:\nserver:\n  host: 0.0.0.0\n  port: ", "target": "8080\n  workers: 4"},
-    {"prompt": "Docker Compose:\nservices:\n  web:\n    image: ", "target": "nginx:latest\n    ports:\n      - '80:80'"},
-    {"prompt": "Dockerfile for Flask:\n\nFROM ", "target": "python:3.11-slim\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install -r requirements.txt"},
-    # GraphQL
-    {"prompt": "GraphQL: Get user by ID with posts\n\n```graphql\n", "target": "query GetUser($id: ID!) {\n  user(id: $id) {\n    name\n    posts { title }\n  }\n}"},
-    {"prompt": "GraphQL mutation: Create user\n\n```graphql\n", "target": "mutation CreateUser($input: UserInput!) {\n  createUser(input: $input) {\n    id\n    name\n  }\n}"},
-    # MongoDB
-    {"prompt": "MongoDB: Orders over $100 last week\n\ndb.orders.find(", "target": '{"amount": {"$gt": 100}})'},
-    {"prompt": "MongoDB: Update user email\n\ndb.users.updateOne(", "target": '{"_id": ObjectId("abc")}, {"$set": {"email": "new@test.com"}})'},
-    # Cron
-    {"prompt": "Cron: Every Monday 9am\n\n", "target": "0 9 * * 1"},
-    {"prompt": "Cron: Every 5 minutes\n\n", "target": "*/5 * * * *"},
-    # Regex
-    {"prompt": "Regex: Match email addresses\n\n", "target": r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"},
-    {"prompt": "Regex: Match ISO date (YYYY-MM-DD)\n\n", "target": r"\d{4}-\d{2}-\d{2}"},
-    # Markdown
-    {"prompt": "Create a markdown table:\n| Name | Age |\n|", "target": "------|-----|\n| Alice | 30 |\n| Bob | 25 |"},
-    # TypeScript
-    {"prompt": "```typescript\ninterface User {\n  ", "target": "id: number;\n  name: string;\n  email: string;\n}"},
-    # CSS
-    {"prompt": "CSS: Center div horizontally and vertically\n\n.container {\n  ", "target": "display: flex;\n  justify-content: center;\n  align-items: center;\n}"},
-    # git
-    {"prompt": "Git: Undo last commit but keep changes\n\n$ ", "target": "git reset --soft HEAD~1"},
-    # terraform
-    {"prompt": "Terraform: AWS EC2 instance\n\nresource \"aws_instance\" \"web\" {\n  ", "target": 'ami           = "ami-0c55b159cbfafe1f0"\n  instance_type = "t2.micro"'},
-    # nginx
-    {"prompt": "Nginx: Reverse proxy to port 3000\n\nlocation / {\n    ", "target": "proxy_pass http://localhost:3000;\n    proxy_set_header Host $host;"},
-    # makefile
-    {"prompt": "Makefile target: build and test\n\nall: build test\n\nbuild:\n\t", "target": "go build -o bin/app ./cmd/main.go\n\ntest:\n\tgo test ./..."},
-    # GitHub Actions
-    {"prompt": "GitHub Actions: Run tests on push\n\nname: CI\non: push\njobs:\n  test:\n    runs-on: ", "target": "ubuntu-latest\n    steps:\n      - uses: actions/checkout@v3"},
-]
-
-
-def classify_component(name):
-    if "layers." not in name:
-        return "other", -1
-    parts = name.split(".")
-    layer_idx = None
-    for i, p in enumerate(parts):
-        if p == "layers" and i + 1 < len(parts):
-            try: layer_idx = int(parts[i + 1])
-            except: pass
-    if layer_idx is None:
-        return "other", -1
-    if "q_proj" in name: return "W_Q", layer_idx
-    elif "k_proj" in name: return "W_K", layer_idx
-    elif "v_proj" in name: return "W_V", layer_idx
-    elif "o_proj" in name: return "W_O", layer_idx
-    elif "gate_proj" in name: return "W_gate", layer_idx
-    elif "up_proj" in name: return "W_up", layer_idx
-    elif "down_proj" in name: return "W_down", layer_idx
-    return "other", layer_idx
+from agent_examples_200 import BASE_EXAMPLES, EXTRA_EXAMPLES
+AGENT_EXAMPLES = BASE_EXAMPLES + EXTRA_EXAMPLES
 
 
 def compute_loss(model, tokenizer, examples, device):
@@ -154,7 +66,7 @@ def run_attribution(base_dir, it_dir, device="cuda:0", model_name="unknown"):
             for key in sf.keys():
                 it_index[key] = f
 
-    examples = AGENT_EXAMPLES  # 49 base examples; full 209-set in agent_examples_200.py
+    examples = AGENT_EXAMPLES
 
     print(f"Measuring baseline IT loss on {len(examples)} examples...")
     baseline_loss = compute_loss(model, tokenizer, examples, device)
@@ -230,32 +142,86 @@ def run_attribution(base_dir, it_dir, device="cuda:0", model_name="unknown"):
         pos_count = sum(1 for h in harms if h > 0)
         type_stats[comp] = {
             "count": len(entries), "mean_harm": float(np.mean(harms)),
-            "sum_harm": float(np.sum(harms)), "positive_fraction": pos_count / len(entries),
+            "sum_harm": float(np.sum(harms)),
+            "abs_sum_harm": float(np.sum(np.abs(harms))),
+            "positive_fraction": pos_count / len(entries),
         }
         print(f"  {comp:8s}: mean={np.mean(harms):+.4f}, sum={np.sum(harms):+.4f}, pos={pos_count}/{len(entries)}")
 
     vo = [e["harm_score"] for e in by_type.get("W_V", []) + by_type.get("W_O", [])]
     qk = [e["harm_score"] for e in by_type.get("W_Q", []) + by_type.get("W_K", [])]
     mlp = [e["harm_score"] for e in by_type.get("W_gate", []) + by_type.get("W_up", []) + by_type.get("W_down", [])]
-    total = sum(max(0, h) for h in [r["harm_score"] for r in results])
-    vo_pos = sum(max(0, h) for h in vo)
-    qk_pos = sum(max(0, h) for h in qk)
-    mlp_pos = sum(max(0, h) for h in mlp)
+    total_abs = sum(abs(r["harm_score"]) for r in results)
+    vo_abs = sum(abs(h) for h in vo)
+    qk_abs = sum(abs(h) for h in qk)
+    mlp_abs = sum(abs(h) for h in mlp)
 
-    print(f"\n  Total pos: {total:.4f}")
-    print(f"  MLP: {mlp_pos:.4f} ({mlp_pos/total*100:.1f}%)")
-    print(f"  V/O: {vo_pos:.4f} ({vo_pos/total*100:.1f}%)")
-    print(f"  Q/K: {qk_pos:.4f} ({qk_pos/total*100:.1f}%)")
+    for comp in type_stats:
+        type_stats[comp]["pct_of_total_abs"] = type_stats[comp]["abs_sum_harm"] / total_abs * 100
+
+    print(f"\n  Total |harm|: {total_abs:.4f}")
+    print(f"  MLP: {mlp_abs:.4f} ({mlp_abs/total_abs*100:.1f}%)")
+    print(f"  V/O: {vo_abs:.4f} ({vo_abs/total_abs*100:.1f}%)")
+    print(f"  Q/K: {qk_abs:.4f} ({qk_abs/total_abs*100:.1f}%)")
 
     from scipy.stats import mannwhitneyu
     stat, pval = mannwhitneyu(vo, qk, alternative='greater')
-    print(f"  V/O > Q/K: p = {pval:.6f}")
+    n1, n2 = len(vo), len(qk)
+    r_biserial = 2 * stat / (n1 * n2) - 1
+    print(f"  V/O > Q/K: U={stat:.0f}, p={pval:.6f}, r={r_biserial:.3f}")
+
+    # Block permutation test (preserves within-layer pairing)
+    def block_permutation_test(components, n_perm=100000):
+        """Test V/O > Q/K with block permutation preserving layer structure.
+
+        For each layer, collects the 4 attention scores (W_Q, W_K, W_V, W_O),
+        computes observed = mean(V/O scores) - mean(Q/K scores), then permutes
+        the 4 labels within each layer independently across n_perm iterations.
+        """
+        rng = np.random.RandomState(42)
+        attn_types = {"W_Q", "W_K", "W_V", "W_O"}
+
+        # Group all attention components by layer
+        layers = {}
+        for c in components:
+            if c["component_type"] in attn_types:
+                layer = c["layer"]
+                if layer not in layers:
+                    layers[layer] = []
+                layers[layer].append(c)
+
+        # Observed statistic: mean(|V/O harm|) - mean(|Q/K harm|)
+        vo_obs = [abs(c["harm_score"]) for c in components if c["component_type"] in ("W_V", "W_O")]
+        qk_obs = [abs(c["harm_score"]) for c in components if c["component_type"] in ("W_Q", "W_K")]
+        observed = np.mean(vo_obs) - np.mean(qk_obs)
+
+        count = 0
+        for _ in range(n_perm):
+            perm_vo, perm_qk = [], []
+            for layer_idx in sorted(layers.keys()):
+                layer_comps = layers[layer_idx]
+                if len(layer_comps) != 4:
+                    continue
+                scores = [abs(c["harm_score"]) for c in layer_comps]
+                rng.shuffle(scores)
+                perm_vo.extend(scores[:2])
+                perm_qk.extend(scores[2:])
+            if perm_vo and perm_qk:
+                perm_diff = np.mean(perm_vo) - np.mean(perm_qk)
+                if perm_diff >= observed:
+                    count += 1
+        return count / n_perm
+
+    p_block = block_permutation_test(results)
+    print(f"  Block permutation p = {p_block:.6f}")
 
     output = {
-        "analysis": "Attribution via activation patching (float16, 50 examples)",
-        "model_pair": model_name, "num_examples": len(examples),
+        "analysis": f"Attribution via weight patching (float16, {len(examples)} examples)",
+        "model": model_name, "num_examples": len(examples),
         "baseline_loss": float(baseline_loss),
         "type_statistics": type_stats, "components": results,
+        "vo_qk_test": {"U": float(stat), "p_mw": float(pval),
+                       "r_biserial": float(r_biserial), "p_block": float(p_block)},
     }
     safe_name = model_name.replace("/", "_").replace(" ", "_").lower()
     out_path = RESULTS_DIR / f"attribution_{safe_name}.json"

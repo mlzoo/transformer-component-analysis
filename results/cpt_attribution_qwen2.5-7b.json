@@ -1,0 +1,96 @@
+{
+  "experiment": "Continual Pretraining Attribution Control",
+  "model": "qwen2.5-7b",
+  "n_steps": 500,
+  "n_examples": 209,
+  "training": {
+    "final_loss": 2.0378165662288668,
+    "initial_loss": 2.7481439113616943,
+    "loss_reduction": 0.7103273451328276
+  },
+  "continual_pretraining": {
+    "hierarchy": {
+      "type_shares": {
+        "W_Q": 5.596299274621925,
+        "W_K": 6.55821472260966,
+        "W_V": 8.589893176755826,
+        "W_O": 5.5387256327468215,
+        "W_gate": 1.8912176059992278,
+        "W_up": 17.71984830699005,
+        "W_down": 54.10580128027649
+      },
+      "type_means": {
+        "W_Q": -2.2751764907430472e-05,
+        "W_K": -2.6662433915553008e-05,
+        "W_V": 3.492222637623198e-05,
+        "W_O": 4.5035398322770416e-05,
+        "W_gate": -1.537749725273398e-05,
+        "W_up": 0.00014408015121857614,
+        "W_down": 0.00043993446756478746
+      },
+      "mlp_total": 73.71686719326577,
+      "attn_total": 26.283132806734233,
+      "vo_qk_ratio": -1.5498898941546273,
+      "vo_mean": 3.8293283691744786e-05,
+      "qk_mean": -2.470709941149174e-05,
+      "mlp_hierarchy": {
+        "W_down": 54.10580128027649,
+        "W_up": 17.71984830699005,
+        "W_gate": 1.8912176059992278
+      },
+      "w_down_gt_w_up": true,
+      "w_up_gt_w_gate": true,
+      "output_pathway_dominant": true
+    },
+    "baseline_loss": 0.7496373809425779
+  },
+  "instruction_tuning": {
+    "hierarchy": {
+      "type_shares": {
+        "W_Q": 8.86787601170104,
+        "W_K": 2.363149626378995,
+        "W_V": 9.425017179457528,
+        "W_O": 11.458596324882482,
+        "W_gate": 11.545148820819684,
+        "W_up": 22.861419420809696,
+        "W_down": 33.478792615950574
+      },
+      "type_means": {
+        "W_Q": 0.0004261344310382791,
+        "W_K": 0.00011355813051136334,
+        "W_V": 0.0004529071367252605,
+        "W_O": 0.0011012563592360089,
+        "W_gate": 0.0011095746980496043,
+        "W_up": 0.002197152496214363,
+        "W_down": 0.0032175610539484844
+      },
+      "mlp_total": 67.88536085757995,
+      "attn_total": 32.114639142420046,
+      "vo_qk_ratio": 2.4792765062681137,
+      "vo_mean": 0.0006690235442288432,
+      "qk_mean": 0.0002698462807748212,
+      "mlp_hierarchy": {
+        "W_down": 33.478792615950574,
+        "W_up": 22.861419420809696,
+        "W_gate": 11.545148820819684
+      },
+      "w_down_gt_w_up": true,
+      "w_up_gt_w_gate": true,
+      "output_pathway_dominant": true
+    },
+    "baseline_loss": 0.8288163690646594
+  },
+  "comparison": {
+    "score_correlation": 0.44203471510312986,
+    "both_output_pathway_dominant": true,
+    "cpt_output_dominant": true,
+    "it_output_dominant": true,
+    "cpt_mlp_pct": 73.71686719326577,
+    "it_mlp_pct": 67.88536085757995,
+    "cpt_vo_qk_ratio": -1.5498898941546273,
+    "it_vo_qk_ratio": 2.4792765062681137,
+    "cpt_wdown_gt_wup": true,
+    "it_wdown_gt_wup": true,
+    "conclusion": "Output-pathway concentration persists under non-alignment fine-tuning. This suggests the pattern is partially architectural/optimization-driven, not purely alignment-specific. The alignment tax mechanism overlaps with a general fine-tuning pattern."
+  }
+}
